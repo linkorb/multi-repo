@@ -1,3 +1,25 @@
 parameters:
-  repos_list:
-    cyans:
+  repos:
+    list:
+      repoExample: git@github.com:vendor/repo-name.git
+    # specify path or url to base yaml with defaults that will be array-merged with this file.
+    # this allows for one or two common base files to specify fixer rules etc
+    defaults: https://raw.github.com/linkorb/templates/master/repo.defaults.yaml
+    configs:
+      repoExample:
+        # define arbitrary custom variables, can be used in fixers/templates/etc
+        variables:
+          copyright: linkorb
+          logoUrl: http://github.com/linkorb.png
+        # Define which fixers to run, in which order, and their parameters
+        fixers:
+          qaChecks:
+            checks:
+              - phpcs
+              - phpstan
+          circleci: # runs the circleciFixer
+            template:https://raw.github.com/linkorb/templates/circleci/config.yml.twig
+          githubWorkflows:
+            templates:
+              “.github/workflows/production.yml”: https://raw.github.com/…./production.yml.twig
+              “.github/workflows/staging.yml”: https://raw.github.com/…./staging.yml.twig
