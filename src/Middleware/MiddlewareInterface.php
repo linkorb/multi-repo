@@ -6,5 +6,5 @@ use Linkorb\MultiRepo\Dto\FixerInputDto;
 
 interface MiddlewareInterface
 {
-    public function __invoke(FixerInputDto $input, MiddlewareInterface $next);
+    public function __invoke(FixerInputDto $input, callable $next);
 }

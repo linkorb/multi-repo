@@ -20,18 +20,24 @@ class MiddlewareStack
                 return true;
             }
         };
-        $this->middlewareFn = function (Generator $fixerData) use ($middlewareClass): MiddlewareInterface {
-            return $middlewareClass($fixerData->current(), $middlewareClass);
+        $this->middlewareFn = function (Generator $fixerData) use ($middlewareClass): callable {
+            return function () use ($middlewareClass, $fixerData) {
+                return $middlewareClass($fixerData->current(), $middlewareClass);
+            };
         };
     }
 
     public function add(MiddlewareInterface $middleware): self
     {
-        $this->middlewareFn = function (Generator $fixerData) use ($middleware): MiddlewareInterface {
+        $this->middlewareFn = function (Generator $fixerData) use ($middleware): callable {
             $fixerDto = $fixerData->current();
             $fixerData->next();
 
-            return $middleware($fixerDto, ($this->middlewareFn)($fixerData));
+            $fn = $this->middlewareFn;
+
+            return function () use ($middleware, $fixerDto, $fixerData, $fn) {
+                return $middleware($fixerDto, ($fn)($fixerData));
+            };
         };
 
         return $this;
@@ -39,6 +45,6 @@ class MiddlewareStack
 
     public function __invoke(RepoInputDto $dto): void
     {
-        ($this->middlewareFn)($dto->getFixerData());
+        ($this->middlewareFn)($dto->getFixerData())();
     }
 }

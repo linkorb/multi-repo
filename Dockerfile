@@ -9,7 +9,4 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* && \
     mkdir /app
 
-RUN pecl install apcu \
-  && docker-php-ext-enable apcu
-
 WORKDIR /app

@@ -2,7 +2,7 @@
 
 namespace Linkorb\MultiRepo\Services\Helper;
 
-use Linkorb\MultiRepo\Services\Io;
+use Linkorb\MultiRepo\Services\Io\UnixIo;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use UnexpectedValueException;
 
@@ -11,11 +11,11 @@ class TemplateLocationHelper
     public const LOCAL_PATH = 'local_path';
     public const REMOTE_URL = 'remote_url';
 
-    private Io $io;
+    private UnixIo $io;
 
     private HttpClientInterface $client;
 
-    public function __construct(Io $io, HttpClientInterface $client)
+    public function __construct(UnixIo $io, HttpClientInterface $client)
     {
         $this->io = $io;
         $this->client = $client;

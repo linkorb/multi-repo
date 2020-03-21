@@ -4,18 +4,23 @@ namespace Linkorb\MultiRepo\Middleware;
 
 use Linkorb\MultiRepo\Dto\FixerInputDto;
 use Linkorb\MultiRepo\Services\Helper\TemplateLocationHelper;
+use Twig\Environment;
 
 class GithubWorkflowMiddleware implements MiddlewareInterface
 {
     private TemplateLocationHelper $templateHelper;
 
-    public function __construct(TemplateLocationHelper $templateHelper)
+    private Environment $twig;
+
+    public function __construct(TemplateLocationHelper $templateHelper, Environment $twig)
     {
         $this->templateHelper = $templateHelper;
+        $this->twig = $twig;
     }
 
-    public function __invoke(FixerInputDto $input, MiddlewareInterface $next)
+    public function __invoke(FixerInputDto $input, callable $next)
     {
-
+        // TODO: Add logic for github workflow
+        $next();
     }
 }

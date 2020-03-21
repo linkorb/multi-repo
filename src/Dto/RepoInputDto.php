@@ -6,6 +6,8 @@ use Generator;
 
 class RepoInputDto
 {
+    public string $repositoryPath;
+
     private string $name;
 
     private string $dsn;
@@ -32,7 +34,7 @@ class RepoInputDto
     public function getFixerData(): Generator
     {
         foreach ($this->config['fixers'] as $fixerName => $fixerConfig) {
-            yield $fixerName => new FixerInputDto($fixerName, $fixerConfig, $this->config['variables']);
+            yield $fixerName => new FixerInputDto($this->repositoryPath, $fixerConfig, $this->config['variables']);
         }
     }
 }

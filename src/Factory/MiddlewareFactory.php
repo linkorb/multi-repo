@@ -5,20 +5,22 @@ namespace Linkorb\MultiRepo\Factory;
 use Linkorb\MultiRepo\Middleware\GithubWorkflowMiddleware;
 use Linkorb\MultiRepo\Middleware\QaCheckMiddleware;
 use Linkorb\MultiRepo\Services\Helper\TemplateLocationHelper;
+use Linkorb\MultiRepo\Services\Io\IoInterface;
+use Twig\Environment;
 
 class MiddlewareFactory
 {
-    public static function createQaFactory(): callable
+    public static function createQaFactory(IoInterface $io): callable
     {
-        return function () {
-            return new QaCheckMiddleware();
+        return function () use ($io) {
+            return new QaCheckMiddleware($io);
         };
     }
 
-    public static function createGithubActionsFactory(TemplateLocationHelper $helper): callable
+    public static function createGithubActionsFactory(TemplateLocationHelper $helper, Environment $twig): callable
     {
-        return function () use ($helper) {
-            return new GithubWorkflowMiddleware($helper);
+        return function () use ($helper, $twig) {
+            return new GithubWorkflowMiddleware($helper, $twig);
         };
     }
 }
