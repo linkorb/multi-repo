@@ -24,7 +24,7 @@ class MultiRepositoryHandler
                 new RepoInputDto(
                     $repoName,
                     $repoDsn,
-                    array_replace_recursive($this->config['defaults'], $this->config['configs'][$repoName])
+                    array_replace_recursive($this->config['defaults'] ?? [], $this->config['configs'][$repoName])
                 )
             );
 

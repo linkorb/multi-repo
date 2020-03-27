@@ -1,6 +1,6 @@
 <?php
 
-namespace Linkorb\Repo;
+namespace Linkorb\MultiRepo;
 
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;

@@ -50,7 +50,7 @@ class RepositoryHandler
 
         $stack = $this->getMiddlewareStack();
 
-        foreach ($repoInputDto->getFixerData() as $fixerType => $fixerDatum) {
+        foreach ($repoInputDto->getFixerData(true) as $fixerType => $fixerDatum) {
             $stack->add($this->middlewareFactory->createMiddleware($fixerType));
         }
 

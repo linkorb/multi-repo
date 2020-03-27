@@ -9,33 +9,21 @@ class UnixIo implements IoInterface
 {
     public function copyDir(string $origin, string $target): self
     {
-        $result = `cp -a {$origin} {$target}`;
-
-        if ($result !== '') {
-            throw new Exception($result);
-        }
+        $this->handleUnixCommandResult(`cp -a {$origin} {$target}`);
 
         return $this;
     }
 
     public function moveDir(string $origin, string $target): self
     {
-        $result = `mv {$origin} {$target}`;
-
-        if ($result !== '') {
-            throw new Exception($result);
-        }
+        $this->handleUnixCommandResult(`mv {$origin} {$target}`);
 
         return $this;
     }
 
     public function removeDir(string $path): self
     {
-        $result = `rm -rf {$path}`;
-
-        if ($result !== '') {
-            throw new Exception($result);
-        }
+        $this->handleUnixCommandResult(`rm -rf {$path}`);
 
         return $this;
     }
@@ -50,7 +38,7 @@ class UnixIo implements IoInterface
         $path = $dir . DIRECTORY_SEPARATOR . $file;
 
         if (!is_dir($dir)) {
-            mkdir($dir, '0775', true);
+            mkdir($dir, 775, true);
         }
 
         if (file_put_contents($path, $content) === false) {
@@ -58,5 +46,12 @@ class UnixIo implements IoInterface
         }
 
         return $this;
+    }
+
+    private function handleUnixCommandResult($result): void
+    {
+        if ($result !== null && $result !== '') {
+            throw new Exception($result);
+        }
     }
 }

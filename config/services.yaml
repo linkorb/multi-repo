@@ -1,3 +1,6 @@
+imports:
+    - { resource: ../repos.yaml }
+
 # This file is the entry point to configure your own services.
 # Files in the packages/ subdirectory configure your dependencies.
 
@@ -13,9 +16,21 @@ services:
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
-    Linkorb\Repo\:
+    Linkorb\MultiRepo\:
         resource: '../src/*'
         exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}'
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
+    Linkorb\MultiRepo\Services\Io\IoInterface: '@Linkorb\MultiRepo\Services\Io\UnixIo'
+
+    Linkorb\MultiRepo\Factory\MiddlewareFactoryPool:
+        calls:
+            - [addToPool, ['githubWorkflows', !service { factory: ['Linkorb\MultiRepo\Factory\MiddlewareFactory', 'createGithubActionsFactory'], arguments: ['@Linkorb\MultiRepo\Services\Helper\TemplateLocationHelper', '@twig'] }]]
+            - [addToPool, ['qaChecks', !service { factory: ['Linkorb\MultiRepo\Factory\MiddlewareFactory', 'createQaFactory'], arguments: ['@Linkorb\MultiRepo\Services\Io\IoInterface'] }]]
+
+    Linkorb\MultiRepo\Handler\RepositoryHandler:
+        arguments:
+            $repositoriesBasePath: '%kernel.project_dir%/repositories'
+
+    Linkorb\MultiRepo\Handler\MultiRepositoryHandler:
+        arguments:
+            $config: '%repos%'

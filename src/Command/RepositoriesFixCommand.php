@@ -36,7 +36,7 @@ class RepositoriesFixCommand extends Command
         $i = 0;
 
         try {
-            while ($repoName = $this->multiRepositoryHandler->iterateHandle()) {
+            foreach ($this->multiRepositoryHandler->iterateHandle() as $repoName) {
                 $output->write(
                     sprintf('%04d / %04d Repository %s fixed successfully', ++$i, $total, $repoName),
                     true

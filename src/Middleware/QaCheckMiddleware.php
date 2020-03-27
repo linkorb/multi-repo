@@ -3,11 +3,18 @@
 namespace Linkorb\MultiRepo\Middleware;
 
 use Exception;
+use InvalidArgumentException;
 use Linkorb\MultiRepo\Dto\FixerInputDto;
 use Linkorb\MultiRepo\Services\Io\IoInterface;
 
 class QaCheckMiddleware implements MiddlewareInterface
 {
+    private const PHPSTAN = 'phpstan';
+    private const PHPCS = 'phpcs';
+    private const PHPCPD = 'phpcpd';
+    private const SECURITY_CHECKER = 'security-checker';
+    private const CODE_FIXER = 'code-fixer';
+
     private IoInterface $io;
 
     public function __construct(IoInterface $io)
@@ -48,14 +55,15 @@ DOC;
 
     private function operateComposerPackages(FixerInputDto $input): void
     {
-        $packages = [
-            'phpstan/phpstan',
-            'phpstan/phpstan-symfony',
-            'sebastian/phpcpd',
-            'sensiolabs/security-checker',
-            'squizlabs/php_codesniffer',
-            'wapmorgan/php-code-fixer'
-        ];
+        $checks = $input->getFixerData()['checks'] ?? [
+                static::PHPSTAN,
+                static::PHPCS,
+                static::PHPCPD,
+                static::CODE_FIXER,
+                static::SECURITY_CHECKER,
+            ];
+
+        $packages = $this->createPackages($checks);
 
         exec(sprintf('composer require %s', implode(' ', $packages)), $output, $code);
 
@@ -70,22 +78,77 @@ DOC;
 
         $composerJson['scripts'] = array_merge(
             $composerJson['scripts'],
-            [
-                'qa-checks' => [
-                    "@phpcs",
-                    "@phpstan",
-                    "@phpcf",
-                    "@phpcpd",
-                    "@security-check",
-                ],
-                'phpcs' => './vendor/bin/phpcs ./src/',
-                'phpstan' => './vendor/bin/phpstan analyze --level=5 ./src/',
-                'phpcf' => './vendor/bin/phpcf --target 7.1 ./src/',
-                'phpcpd' => './vendor/bin/phpcpd --fuzzy ./src/',
-                'security-check' => './vendor/bin/security-checker security:check ./composer.lock',
-            ]
+            $this->createScripts($checks)
         );
 
-        $this->io->write($input->getRepositoryPath(), 'composer.json', json_encode($composerJson, JSON_PRETTY_PRINT));
+        $this->io->write(
+            $input->getRepositoryPath(),
+            'composer.json',
+            json_encode($composerJson, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+        );
+    }
+
+    private function createPackages(array $checks): array
+    {
+        $result = [];
+
+        foreach ($checks as $check) {
+            switch ($check) {
+                case static::PHPSTAN:
+                    $result[] = 'phpstan/phpstan';
+                    $result[] = 'phpstan/phpstan-symfony';
+                    break;
+                case static::PHPCS:
+                    $result[] = 'squizlabs/php_codesniffer';
+                    break;
+                case static::PHPCPD:
+                    $result[] = 'sebastian/phpcpd';
+                    break;
+                case static::CODE_FIXER:
+                    $result[] = 'wapmorgan/php-code-fixer';
+                    break;
+                case static::SECURITY_CHECKER:
+                    $result[] = 'sensiolabs/security-checker';
+                    break;
+                default:
+                    throw new InvalidArgumentException('Unknown QA check type');
+            }
+        }
+
+        return $result;
+    }
+
+    private function createScripts(array $checks): array
+    {
+        $scripts = ['qa-checks' => []];
+
+        foreach ($checks as $check) {
+            switch ($check) {
+                case static::PHPSTAN:
+                    $scripts['phpstan'] = './vendor/bin/phpstan analyze --level=5 ./src/';
+                    $scripts['qa-checks'][] = '@phpstan';
+                    break;
+                case static::PHPCS:
+                    $scripts['phpcs'] = './vendor/bin/phpcs ./src/';
+                    $scripts['qa-checks'][] = '@phpcs';
+                    break;
+                case static::PHPCPD:
+                    $scripts['phpcpd'] = './vendor/bin/phpcpd --fuzzy ./src/';
+                    $scripts['qa-checks'][] = '@phpcpd';
+                    break;
+                case static::CODE_FIXER:
+                    $scripts['phpcf'] = './vendor/bin/phpcf --target 7.1 ./src/';
+                    $scripts['qa-checks'][] = '@phpcf';
+                    break;
+                case static::SECURITY_CHECKER:
+                    $scripts['security-check'] = './vendor/bin/security-checker security:check ./composer.lock';
+                    $scripts['qa-checks'][] = '@security-check';
+                    break;
+                default:
+                    throw new InvalidArgumentException('Unknown QA check type');
+            }
+        }
+
+        return $scripts;
     }
 }

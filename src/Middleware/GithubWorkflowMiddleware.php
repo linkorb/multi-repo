@@ -21,6 +21,9 @@ class GithubWorkflowMiddleware implements MiddlewareInterface
     public function __invoke(FixerInputDto $input, callable $next)
     {
         // TODO: Add logic for github workflow
+
+        echo 'called pre step for github actions' . PHP_EOL;
         $next();
+        echo 'called post step for github actions' . PHP_EOL;
     }
 }

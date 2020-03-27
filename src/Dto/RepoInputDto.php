@@ -31,10 +31,16 @@ class RepoInputDto
         return $this->dsn;
     }
 
-    public function getFixerData(): Generator
+    public function getFixerData(bool $reverse = false): Generator
     {
-        foreach ($this->config['fixers'] as $fixerName => $fixerConfig) {
-            yield $fixerName => new FixerInputDto($this->repositoryPath, $fixerConfig, $this->config['variables']);
+        $fixers = $reverse ? array_reverse($this->config['fixers']) :  $this->config['fixers'];
+
+        foreach ($fixers as $fixerName => $fixerConfig) {
+            yield $fixerName => new FixerInputDto(
+                $this->repositoryPath,
+                $fixerConfig ?? [],
+                $this->config['variables'] ?? []
+            );
         }
     }
 }

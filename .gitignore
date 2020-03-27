@@ -17,3 +17,6 @@
 !.gitkeep
 repos.yaml
 .idea
+
+repositories/source
+repositories/cache
