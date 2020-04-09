@@ -37,6 +37,12 @@ class RepositoriesFixCommand extends Command
                 InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
                 'Run command on specified path only'
             )
+            ->addOption(
+                'debug',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'Show debug information about errors'
+            )
             ->setDescription('Setting up repositories specified in repos.yaml, applying fixers for them');
     }
 
@@ -54,6 +60,7 @@ class RepositoriesFixCommand extends Command
             return $this->handleException(
                 $output,
                 $exception,
+                $input->hasOption('debug'),
                 sprintf('Got error during initialization: %s', $exception->getMessage())
             );
         }
@@ -71,6 +78,7 @@ class RepositoriesFixCommand extends Command
             return $this->handleException(
                 $output,
                 $exception,
+                $input->hasOption('debug'),
                 sprintf(
                     '<error>%04d / %04d Repository failed to fix with message: %s</error>',
                     ++$i,
@@ -82,9 +90,18 @@ class RepositoriesFixCommand extends Command
         return 0;
     }
 
-    private function handleException(OutputInterface $output, Throwable $exception, string $message): int
+    private function handleException(
+        OutputInterface $output,
+        Throwable $exception,
+        bool $isDebug,
+        string $message
+    ): int
     {
         $output->writeln($message);
+
+        if ($isDebug) {
+            throw $exception;
+        }
 
         return $exception->getCode() ?? 1;
     }

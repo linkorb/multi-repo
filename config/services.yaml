@@ -24,8 +24,9 @@ services:
 
     Linkorb\MultiRepo\Factory\MiddlewareFactoryPool:
         calls:
-            - [addToPool, ['githubWorkflows', !service { factory: ['Linkorb\MultiRepo\Factory\MiddlewareFactory', 'createGithubActionsFactory'], arguments: ['@Linkorb\MultiRepo\Services\Helper\TemplateLocationHelper', '@twig'] }]]
+            - [addToPool, ['githubWorkflows', !service { factory: ['Linkorb\MultiRepo\Factory\MiddlewareFactory', 'createGithubActionsFactory'], arguments: ['@Linkorb\MultiRepo\Services\Helper\TemplateLocationHelper', '@twig', '@Linkorb\MultiRepo\Services\Io\IoInterface', '@Linkorb\MultiRepo\Services\Helper\DockerfileInitHelper'] }]]
             - [addToPool, ['qaChecks', !service { factory: ['Linkorb\MultiRepo\Factory\MiddlewareFactory', 'createQaFactory'], arguments: ['@Linkorb\MultiRepo\Services\Io\IoInterface'] }]]
+            - [addToPool, ['circleci', !service { factory: ['Linkorb\MultiRepo\Factory\MiddlewareFactory', 'createCircleCiFactory'], arguments: ['@Linkorb\MultiRepo\Services\Helper\TemplateLocationHelper', '@twig', '@Linkorb\MultiRepo\Services\Io\IoInterface', '@Linkorb\MultiRepo\Services\Helper\DockerfileInitHelper'] }]]
 
     Linkorb\MultiRepo\Handler\RepositoryHandler:
         arguments:
@@ -34,3 +35,7 @@ services:
     Linkorb\MultiRepo\Handler\MultiRepositoryHandler:
         arguments:
             $config: '%repos%'
+
+    Linkorb\MultiRepo\Services\Helper\DockerfileInitHelper:
+        arguments:
+            $templatesDir: '%kernel.project_dir%/templates/dockerfile'

@@ -22,7 +22,7 @@ class QaCheckMiddleware implements MiddlewareInterface
         $this->io = $io;
     }
 
-    public function __invoke(FixerInputDto $input, callable $next)
+    public function __invoke(FixerInputDto $input, callable $next): void
     {
         $this->operateGitHooks($input);
         $this->operateComposerPackages($input);
@@ -32,13 +32,20 @@ class QaCheckMiddleware implements MiddlewareInterface
 
     private function operateGitHooks(FixerInputDto $input): void
     {
-        $this->io->write(
-            $input->getRepositoryPath(). DIRECTORY_SEPARATOR . '.hooks',
-            'pre-push.sample',
-            'composer run qa-checks' . PHP_EOL
-        );
+        if (!file_exists(implode(DIRECTORY_SEPARATOR, [$input->getRepositoryPath(), '.hooks', 'pre-push.sample']))) {
+            $this->io->write(
+                $input->getRepositoryPath(). DIRECTORY_SEPARATOR . '.hooks',
+                'pre-push.sample',
+                'composer run qa-checks' . PHP_EOL
+            );
+        }
 
-        $readmeAddContent = <<<DOC
+        if (strpos(
+                $this->io->read($input->getRepositoryPath() . DIRECTORY_SEPARATOR . 'README.md'),
+                '## Git hooks'
+            ) === false
+        ) {
+            $readmeAddContent = <<<DOC
 
 ## Git hooks
 
@@ -46,11 +53,12 @@ There are some git hooks under `.hooks` directory. Feel free to copy & adjust & 
 
 DOC;
 
-        $this->io->write(
-            $input->getRepositoryPath(),
-            'README.md',
-            $this->io->read($input->getRepositoryPath(). DIRECTORY_SEPARATOR . 'README.md') . $readmeAddContent
-        );
+            $this->io->write(
+                $input->getRepositoryPath(),
+                'README.md',
+                $this->io->read($input->getRepositoryPath() . DIRECTORY_SEPARATOR . 'README.md') . $readmeAddContent
+            );
+        }
     }
 
     private function operateComposerPackages(FixerInputDto $input): void
@@ -65,10 +73,12 @@ DOC;
 
         $packages = $this->createPackages($checks);
 
-        exec(sprintf('composer require %s', implode(' ', $packages)), $output, $code);
+        if ($this->atLeastOnePackageMissed($packages)) {
+            exec(sprintf('composer require %s', implode(' ', $packages)), $output, $code);
 
-        if ($code !== 0) {
-            throw new Exception('QA checks composer installation failed with code: ' . $code);
+            if ($code !== 0) {
+                throw new Exception('QA checks composer installation failed with code: ' . $code);
+            }
         }
 
         $composerJson = json_decode(
@@ -86,6 +96,23 @@ DOC;
             'composer.json',
             json_encode($composerJson, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
         );
+    }
+
+    private function atLeastOnePackageMissed(array $packages): bool
+    {
+        exec('composer info', $output, $code);
+
+        if ($code !== 0) {
+            return false;
+        }
+
+        foreach ($packages as $package) {
+            if (strpos($output, $package) === false) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function createPackages(array $checks): array
@@ -148,6 +175,8 @@ DOC;
                     throw new InvalidArgumentException('Unknown QA check type');
             }
         }
+
+        $scripts['qa-checks'] = array_unique($scripts['qa-checks']);
 
         return $scripts;
     }

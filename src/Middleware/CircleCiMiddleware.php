@@ -8,7 +8,7 @@ use Linkorb\MultiRepo\Services\Helper\TemplateLocationHelper;
 use Linkorb\MultiRepo\Services\Io\IoInterface;
 use Twig\Environment;
 
-class GithubWorkflowMiddleware implements MiddlewareInterface
+class CircleCiMiddleware implements MiddlewareInterface
 {
     private TemplateLocationHelper $templateHelper;
 
@@ -35,31 +35,14 @@ class GithubWorkflowMiddleware implements MiddlewareInterface
     {
         $dockerfileName = $this->dockerfileHelper->initDockerfile($input->getRepositoryPath());
 
-        if ($input->getFixerData()['.github/workflows/staging.yml']
-            && !file_exists(
-                implode(DIRECTORY_SEPARATOR, [$input->getRepositoryPath(), '.github', 'workflows', 'staging.yml'])
-            )
+        if ($input->getFixerData()['template']
+            && !file_exists(implode(DIRECTORY_SEPARATOR, [$input->getRepositoryPath(), '.circleci', 'config.yml']))
         ) {
             $this->io->write(
-                implode(DIRECTORY_SEPARATOR, [$input->getRepositoryPath(), '.github', 'workflows']),
-                'staging.yml',
+                implode(DIRECTORY_SEPARATOR, [$input->getRepositoryPath(), '.circleci']),
+                'config.yml',
                 $this->twig->render(
-                    $this->templateHelper->getTemplate($input->getFixerData()['.github/workflows/staging.yml']),
-                    ['dockerfile_name' => $dockerfileName]
-                )
-            );
-        }
-
-        if ($input->getFixerData()['.github/workflows/production.yml']
-            && !file_exists(
-                implode(DIRECTORY_SEPARATOR, [$input->getRepositoryPath(), '.github', 'workflows', 'production.yml'])
-            )
-        ) {
-            $this->io->write(
-                implode(DIRECTORY_SEPARATOR, [$input->getRepositoryPath(), '.github', 'workflows']),
-                'production.yml',
-                $this->twig->render(
-                    $this->templateHelper->getTemplate($input->getFixerData()['.github/workflows/production.yml']),
+                    $this->templateHelper->getTemplate($input->getFixerData()['template']),
                     ['dockerfile_name' => $dockerfileName]
                 )
             );

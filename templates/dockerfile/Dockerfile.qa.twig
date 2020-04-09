@@ -1,0 +1,18 @@
+FROM docker.pkg.github.com/linkorb/php-docker-base/php-docker-base:latest
+
+EXPOSE 80
+
+ENV APP_ENV=prod
+
+COPY --chown=www-data:www-data . /app
+
+WORKDIR /app
+
+USER www-data
+RUN ./dinit.sh
+
+USER root
+
+ENTRYPOINT ["docker-entrypoint"]
+
+CMD ["apache2-foreground"]
