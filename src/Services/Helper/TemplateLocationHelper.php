@@ -6,7 +6,7 @@ use Linkorb\MultiRepo\Services\Io\IoInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use UnexpectedValueException;
 
-class TemplateLocationHelper
+final class TemplateLocationHelper
 {
     public const LOCAL_PATH = 'local_path';
     public const REMOTE_URL = 'remote_url';
@@ -35,7 +35,7 @@ class TemplateLocationHelper
 
     private function getFileLocationType(string $dsn): string
     {
-        if (preg_match('^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&\'\(\)\*\+,;=.]+$', $dsn)) {
+        if (filter_var($dsn, FILTER_VALIDATE_URL)) {
             return static::REMOTE_URL;
         } else {
             return static::LOCAL_PATH;

@@ -5,7 +5,7 @@ namespace Linkorb\MultiRepo\Services\Helper;
 use Linkorb\MultiRepo\Services\Io\IoInterface;
 use Twig\Environment;
 
-class DockerfileInitHelper
+final class DockerfileInitHelper
 {
     private Environment $twig;
 

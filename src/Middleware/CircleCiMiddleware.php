@@ -41,10 +41,11 @@ class CircleCiMiddleware implements MiddlewareInterface
             $this->io->write(
                 implode(DIRECTORY_SEPARATOR, [$input->getRepositoryPath(), '.circleci']),
                 'config.yml',
-                $this->twig->render(
-                    $this->templateHelper->getTemplate($input->getFixerData()['template']),
-                    ['dockerfile_name' => $dockerfileName]
-                )
+                $this->twig
+                    ->createTemplate($this->templateHelper->getTemplate($input->getFixerData()['template']))
+                    ->render(
+                        ['dockerfile_name' => $dockerfileName]
+                    )
             );
         }
 

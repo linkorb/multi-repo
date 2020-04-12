@@ -33,9 +33,10 @@ class GithubWorkflowMiddleware implements MiddlewareInterface
 
     public function __invoke(FixerInputDto $input, callable $next): void
     {
+        $templates = $input->getFixerData()['templates'];
         $dockerfileName = $this->dockerfileHelper->initDockerfile($input->getRepositoryPath());
 
-        if ($input->getFixerData()['.github/workflows/staging.yml']
+        if ($templates['.github/workflows/staging.yml']
             && !file_exists(
                 implode(DIRECTORY_SEPARATOR, [$input->getRepositoryPath(), '.github', 'workflows', 'staging.yml'])
             )
@@ -43,14 +44,13 @@ class GithubWorkflowMiddleware implements MiddlewareInterface
             $this->io->write(
                 implode(DIRECTORY_SEPARATOR, [$input->getRepositoryPath(), '.github', 'workflows']),
                 'staging.yml',
-                $this->twig->render(
-                    $this->templateHelper->getTemplate($input->getFixerData()['.github/workflows/staging.yml']),
-                    ['dockerfile_name' => $dockerfileName]
-                )
+                $this->twig
+                    ->createTemplate($this->templateHelper->getTemplate($templates['.github/workflows/staging.yml']))
+                    ->render(['dockerfile_name' => $dockerfileName])
             );
         }
 
-        if ($input->getFixerData()['.github/workflows/production.yml']
+        if ($templates['.github/workflows/production.yml']
             && !file_exists(
                 implode(DIRECTORY_SEPARATOR, [$input->getRepositoryPath(), '.github', 'workflows', 'production.yml'])
             )
@@ -58,10 +58,11 @@ class GithubWorkflowMiddleware implements MiddlewareInterface
             $this->io->write(
                 implode(DIRECTORY_SEPARATOR, [$input->getRepositoryPath(), '.github', 'workflows']),
                 'production.yml',
-                $this->twig->render(
-                    $this->templateHelper->getTemplate($input->getFixerData()['.github/workflows/production.yml']),
-                    ['dockerfile_name' => $dockerfileName]
-                )
+                $this->twig
+                    ->createTemplate(
+                        $this->templateHelper->getTemplate($templates['.github/workflows/production.yml'])
+                    )
+                    ->render(['dockerfile_name' => $dockerfileName])
             );
         }
 

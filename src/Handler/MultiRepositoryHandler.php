@@ -63,19 +63,21 @@ class MultiRepositoryHandler
     }
 
     /**
-     * @param string[] $fixers
+     * @param string[] $fixersList
      */
-    public function replaceFixers(array $fixers): void
+    public function replaceFixers(array $fixersList): void
     {
+        $fixers = array_flip($fixersList);
+
         if ($this->config['defaults']['fixers'] ?? false) {
-            $this->config['defaults']['fixers'] = array_intersect_key($fixers, $this->config['defaults']['fixers']);
+            $this->config['defaults']['fixers'] = array_intersect_key($this->config['defaults']['fixers'], $fixers);
         }
 
         foreach ($this->config['list'] as $repoName => $repoDsn) {
             if ($this->config['configs'][$repoName]['fixers'] ?? false) {
                 $this->config['configs'][$repoName]['fixers'] = array_intersect_key(
-                    $fixers,
-                    $this->config['configs'][$repoName]['fixers']
+                    $this->config['configs'][$repoName]['fixers'],
+                    $fixers
                 );
             }
         }

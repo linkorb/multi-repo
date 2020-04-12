@@ -5,6 +5,7 @@ namespace Linkorb\MultiRepo\Middleware;
 use Exception;
 use InvalidArgumentException;
 use Linkorb\MultiRepo\Dto\FixerInputDto;
+use Linkorb\MultiRepo\Services\Helper\ShExecHelper;
 use Linkorb\MultiRepo\Services\Io\IoInterface;
 
 class QaCheckMiddleware implements MiddlewareInterface
@@ -17,9 +18,12 @@ class QaCheckMiddleware implements MiddlewareInterface
 
     private IoInterface $io;
 
-    public function __construct(IoInterface $io)
+    private ShExecHelper $executor;
+
+    public function __construct(IoInterface $io, ShExecHelper $executor)
     {
         $this->io = $io;
+        $this->executor = $executor;
     }
 
     public function __invoke(FixerInputDto $input, callable $next): void
@@ -73,12 +77,13 @@ DOC;
 
         $packages = $this->createPackages($checks);
 
-        if ($this->atLeastOnePackageMissed($packages)) {
-            exec(sprintf('composer require %s', implode(' ', $packages)), $output, $code);
+        list($code) = $this->executor->exec(
+            sprintf('composer require --no-scripts --dev %s', implode(' ', $packages)),
+            $input->getRepositoryPath()
+        );
 
-            if ($code !== 0) {
-                throw new Exception('QA checks composer installation failed with code: ' . $code);
-            }
+        if ($code !== 0) {
+            throw new Exception('QA checks composer installation failed with code: ' . $code);
         }
 
         $composerJson = json_decode(
@@ -96,23 +101,6 @@ DOC;
             'composer.json',
             json_encode($composerJson, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
         );
-    }
-
-    private function atLeastOnePackageMissed(array $packages): bool
-    {
-        exec('composer info', $output, $code);
-
-        if ($code !== 0) {
-            return false;
-        }
-
-        foreach ($packages as $package) {
-            if (strpos($output, $package) === false) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private function createPackages(array $checks): array

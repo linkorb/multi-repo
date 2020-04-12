@@ -6,16 +6,17 @@ use Linkorb\MultiRepo\Middleware\CircleCiMiddleware;
 use Linkorb\MultiRepo\Middleware\GithubWorkflowMiddleware;
 use Linkorb\MultiRepo\Middleware\QaCheckMiddleware;
 use Linkorb\MultiRepo\Services\Helper\DockerfileInitHelper;
+use Linkorb\MultiRepo\Services\Helper\ShExecHelper;
 use Linkorb\MultiRepo\Services\Helper\TemplateLocationHelper;
 use Linkorb\MultiRepo\Services\Io\IoInterface;
 use Twig\Environment;
 
 class MiddlewareFactory
 {
-    public static function createQaFactory(IoInterface $io): callable
+    public static function createQaFactory(IoInterface $io, ShExecHelper $executor): callable
     {
-        return function () use ($io): QaCheckMiddleware {
-            return new QaCheckMiddleware($io);
+        return function () use ($io, $executor): QaCheckMiddleware {
+            return new QaCheckMiddleware($io, $executor);
         };
     }
 
