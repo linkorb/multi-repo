@@ -2,39 +2,47 @@
 
 namespace Linkorb\MultiRepo\Services\Manager;
 
-use Linkorb\MultiRepo\Services\Git\LinkorbGitRepository;
+use Cz\Git\GitException;
+use Cz\Git\GitRepository;
+use Cz\Git\IGit;
+use UnderflowException;
 
 class GitRepositoriesManager
 {
-    private string $repositoriesBasePath;
-
     /**
-     * @var LinkorbGitRepository[]
+     * @var IGit[]
      */
     private array $repositories = [];
 
-    public function __construct(string $repositoriesBasePath)
+    public function refresh(string $repositoryName, string $repositoryDsn, string $path): void
     {
-        $this->repositoriesBasePath = $repositoriesBasePath;
+        $repo = $this->instantiateRepository($repositoryName, $repositoryDsn, $path);
+
+        if ($repo->hasChanges()) {
+            throw new UnderflowException(
+                sprintf(
+                    'Repository %s already contains uncommitted changes. Please either commit or discard them',
+                    $repositoryName
+                )
+            );
+        }
+
+        $repo->pull();
     }
 
-    public function refresh(string $repositoryName, string $repositoryPath): void
+    private function instantiateRepository(string $repositoryName, string $repositoryDsn, string $path): IGit
     {
-        $this->instantiateRepository($repositoryName, $repositoryPath)
-            ->reset(true)
-            ->pull();
-    }
+        $repoFullPath = $path . DIRECTORY_SEPARATOR . $repositoryName;
 
-    public function getRepositoryPath(string $repositoryName): string
-    {
-        assert(isset($this->repositories[$repositoryName]));
+        if (isset($this->repositories[$repositoryName])) {
+            return $this->repositories[$repositoryName];
+        }
 
-        return $this->repositoriesBasePath . $repositoryName;
-    }
-
-    private function instantiateRepository(string $repositoryName, string $repositoryPath): LinkorbGitRepository
-    {
-        $this->repositories[$repositoryName] = new LinkorbGitRepository($repositoryPath);
+        try {
+            $this->repositories[$repositoryName] = new GitRepository($repoFullPath);
+        } catch (GitException $exception) {
+            $this->repositories[$repositoryName] = GitRepository::cloneRepository($repositoryDsn, $repoFullPath);
+        }
 
         return $this->repositories[$repositoryName];
     }

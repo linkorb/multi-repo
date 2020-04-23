@@ -4,16 +4,22 @@ namespace Linkorb\MultiRepo\Dto;
 
 class FixerInputDto
 {
-    private string $name;
+    private string $repositoryPath;
 
     private array $fixerData;
 
     private array $variables;
 
-    public function __construct(string $name, array $fixerData, array $variables)
+    public function __construct(string $repositoryPath, array $fixerData, array $variables)
     {
+        $this->repositoryPath = $repositoryPath;
         $this->fixerData = $fixerData;
         $this->variables = $variables;
+    }
+
+    public function getRepositoryPath(): string
+    {
+        return $this->repositoryPath;
     }
 
     public function getFixerData(): array
