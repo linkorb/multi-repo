@@ -15,7 +15,10 @@ parameters:
         # Define which fixers to run, in which order, and their parameters
         fixers:
           qaChecks:
-            checks: # define which checks exactly to run
+            # define which checks exactly to run
+            # Possible checks: "phpcs", "phpstan", "phpcpd", "security-checker", "code-fixer"
+            # Empty or omitted `checks` option means run all available checks
+            checks:
               - phpcs
               - phpstan
           circleci: # runs the circleciFixer
