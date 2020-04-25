@@ -4,6 +4,7 @@ namespace Linkorb\MultiRepo\Factory;
 
 use Linkorb\MultiRepo\Middleware\CircleCiMiddleware;
 use Linkorb\MultiRepo\Middleware\GithubWorkflowMiddleware;
+use Linkorb\MultiRepo\Middleware\JsonMiddleware;
 use Linkorb\MultiRepo\Middleware\QaCheckMiddleware;
 use Linkorb\MultiRepo\Services\Helper\DockerfileInitHelper;
 use Linkorb\MultiRepo\Services\Helper\ShExecHelper;
@@ -41,6 +42,13 @@ class MiddlewareFactory
     {
         return function () use ($helper, $twig, $io, $dockerfileHelper): CircleCiMiddleware {
             return new CircleCiMiddleware($helper, $twig, $io, $dockerfileHelper);
+        };
+    }
+
+    public static function createJsonFactory(IoInterface $io): callable
+    {
+        return function () use ($io): JsonMiddleware {
+            return new JsonMiddleware($io);
         };
     }
 }

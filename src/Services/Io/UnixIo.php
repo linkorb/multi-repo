@@ -7,6 +7,8 @@ use Exception;
 // TODO: Implement UnifiedIo which will use php functions for dir operations
 class UnixIo implements IoInterface
 {
+    use FindByAwareTrait;
+
     public function copyDir(string $origin, string $target): self
     {
         $this->handleUnixCommandResult(`cp -a {$origin} {$target}`);
