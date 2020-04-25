@@ -1,5 +1,5 @@
 {
-  "name": "linkorb/repo",
+  "name": "linkorb/multi-repo",
   "type": "project",
   "license": "proprietary",
   "description": "CLI tool for checking and fixing abstract git repository by given config",
