@@ -28,6 +28,7 @@ services:
             - [addToPool, ['qaChecks', !service { factory: ['Linkorb\MultiRepo\Factory\MiddlewareFactory', 'createQaFactory'], arguments: ['@Linkorb\MultiRepo\Services\Io\IoInterface', '@Linkorb\MultiRepo\Services\Helper\ShExecHelper'] }]]
             - [addToPool, ['circleci', !service { factory: ['Linkorb\MultiRepo\Factory\MiddlewareFactory', 'createCircleCiFactory'], arguments: ['@Linkorb\MultiRepo\Services\Helper\TemplateLocationHelper', '@twig', '@Linkorb\MultiRepo\Services\Io\IoInterface', '@Linkorb\MultiRepo\Services\Helper\DockerfileInitHelper'] }]]
             - [addToPool, ['json', !service { factory: ['Linkorb\MultiRepo\Factory\MiddlewareFactory', 'createJsonFactory'], arguments: ['@Linkorb\MultiRepo\Services\Io\IoInterface'] }]]
+            - [addToPool, ['yaml', !service { factory: ['Linkorb\MultiRepo\Factory\MiddlewareFactory', 'createYamlFactory'], arguments: ['@Linkorb\MultiRepo\Services\Io\IoInterface'] }]]
 
     Linkorb\MultiRepo\Handler\RepositoryHandler:
         arguments:

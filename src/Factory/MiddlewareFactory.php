@@ -6,6 +6,7 @@ use Linkorb\MultiRepo\Middleware\CircleCiMiddleware;
 use Linkorb\MultiRepo\Middleware\GithubWorkflowMiddleware;
 use Linkorb\MultiRepo\Middleware\JsonMiddleware;
 use Linkorb\MultiRepo\Middleware\QaCheckMiddleware;
+use Linkorb\MultiRepo\Middleware\YamlMiddleware;
 use Linkorb\MultiRepo\Services\Helper\DockerfileInitHelper;
 use Linkorb\MultiRepo\Services\Helper\ShExecHelper;
 use Linkorb\MultiRepo\Services\Helper\TemplateLocationHelper;
@@ -49,6 +50,13 @@ class MiddlewareFactory
     {
         return function () use ($io): JsonMiddleware {
             return new JsonMiddleware($io);
+        };
+    }
+
+    public static function createYamlFactory(IoInterface $io): callable
+    {
+        return function () use ($io): YamlMiddleware {
+            return new YamlMiddleware($io);
         };
     }
 }

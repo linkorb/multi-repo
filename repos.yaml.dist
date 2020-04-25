@@ -27,3 +27,5 @@ parameters:
             templates:
               “.github/workflows/production.yml”: https://raw.github.com/…./production.yml.twig
               “.github/workflows/staging.yml”: https://raw.github.com/…./staging.yml.twig
+          json: ~
+          yaml: ~
