@@ -5,16 +5,23 @@ namespace Linkorb\MultiRepo\Handler;
 use Generator;
 use InvalidArgumentException;
 use Linkorb\MultiRepo\Dto\RepoInputDto;
+use Linkorb\MultiRepo\Services\Helper\TemplateLocationHelper;
 
 class MultiRepositoryHandler
 {
     private RepositoryHandler $repositoryHandler;
 
+    private TemplateLocationHelper $templateLocationHelper;
+
     private array $config;
 
-    public function __construct(RepositoryHandler $repositoryHandler, array $config)
-    {
+    public function __construct(
+        RepositoryHandler $repositoryHandler,
+        TemplateLocationHelper $templateLocationHelper,
+        array $config
+    ) {
         $this->repositoryHandler = $repositoryHandler;
+        $this->templateLocationHelper = $templateLocationHelper;
         $this->config = $config;
     }
 
@@ -25,7 +32,7 @@ class MultiRepositoryHandler
                 new RepoInputDto(
                     $repoName,
                     $repoDsn,
-                    array_replace_recursive($this->config['defaults'] ?? [], $this->config['configs'][$repoName])
+                    array_replace_recursive($this->defaults() ?? [], $this->config['configs'][$repoName])
                 )
             );
 
@@ -69,8 +76,8 @@ class MultiRepositoryHandler
     {
         $fixers = array_flip($fixersList);
 
-        if ($this->config['defaults']['fixers'] ?? false) {
-            $this->config['defaults']['fixers'] = array_intersect_key($this->config['defaults']['fixers'], $fixers);
+        if ($this->defaults()['fixers'] ?? false) {
+            $this->defaults()['fixers'] = array_intersect_key($this->defaults()['fixers'], $fixers);
         }
 
         foreach ($this->config['list'] as $repoName => $repoDsn) {
@@ -81,5 +88,20 @@ class MultiRepositoryHandler
                 );
             }
         }
+    }
+
+    private function defaults(): array
+    {
+        if (is_array($this->config['defaults'])) {
+            return $this->config['defaults'];
+        }
+
+        if (!isset($this->config['defaults']) || empty($this->config['defaults'])) {
+            return [];
+        }
+
+        $this->config['defaults'] = $this->templateLocationHelper->getYamlTemplate($this->config['defaults']);
+
+        return $this->config['defaults'];
     }
 }

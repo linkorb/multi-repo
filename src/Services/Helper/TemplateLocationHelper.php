@@ -3,6 +3,7 @@
 namespace Linkorb\MultiRepo\Services\Helper;
 
 use Linkorb\MultiRepo\Services\Io\IoInterface;
+use Symfony\Component\Yaml\Yaml;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use UnexpectedValueException;
 
@@ -19,6 +20,11 @@ final class TemplateLocationHelper
     {
         $this->io = $io;
         $this->client = $client;
+    }
+
+    public function getYamlTemplate(string $dsn): array
+    {
+        return Yaml::parse($this->getTemplate($dsn));
     }
 
     public function getTemplate(string $dsn): string

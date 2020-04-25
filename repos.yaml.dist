@@ -1,5 +1,6 @@
 parameters:
   repos:
+    # specify name: url collection for repositories to fix here
     list:
       repoExample: git@github.com:vendor/repo-name.git
     # specify path or url to base yaml with defaults that will be array-merged with this file.
@@ -14,6 +15,9 @@ parameters:
         # Define which fixers to run, in which order, and their parameters
         fixers:
           qaChecks:
+            # define which checks exactly to run
+            # Possible checks: "phpcs", "phpstan", "phpcpd", "security-checker", "code-fixer"
+            # Empty or omitted `checks` option means run all available checks
             checks:
               - phpcs
               - phpstan
