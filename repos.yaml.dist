@@ -34,3 +34,5 @@ parameters:
             replace:
                 package-name: replacement # both options can be passed as composer `replace` args
                 abused-package: ~ # do not install package (no replacement)
+          editorConfig:
+            template: https://raw.github.com/linkorb/templates/editorConfig/config.yml.twig

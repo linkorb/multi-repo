@@ -5,6 +5,7 @@ namespace Linkorb\MultiRepo\Factory;
 use Linkorb\MultiRepo\Middleware\CircleCiMiddleware;
 use Linkorb\MultiRepo\Middleware\ComposerJsonDependencyBlacklistMiddleware;
 use Linkorb\MultiRepo\Middleware\ComposerJsonVersionConstraintMiddleware;
+use Linkorb\MultiRepo\Middleware\EditorConfigMiddleware;
 use Linkorb\MultiRepo\Middleware\GithubWorkflowMiddleware;
 use Linkorb\MultiRepo\Middleware\JsonMiddleware;
 use Linkorb\MultiRepo\Middleware\QaCheckMiddleware;
@@ -73,6 +74,17 @@ class MiddlewareFactory
     {
         return function () use ($io, $executor): ComposerJsonDependencyBlacklistMiddleware {
             return new ComposerJsonDependencyBlacklistMiddleware($io, $executor);
+        };
+    }
+
+    public static function createEditorConfig(
+        TemplateLocationHelper $helper,
+        Environment $twig,
+        IoInterface $io
+    ): callable
+    {
+        return function () use ($helper, $twig, $io): EditorConfigMiddleware {
+            return new EditorConfigMiddleware($helper, $twig, $io);
         };
     }
 }
