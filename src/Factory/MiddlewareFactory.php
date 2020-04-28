@@ -3,6 +3,7 @@
 namespace Linkorb\MultiRepo\Factory;
 
 use Linkorb\MultiRepo\Middleware\CircleCiMiddleware;
+use Linkorb\MultiRepo\Middleware\ComposerJsonDependencyBlacklistMiddleware;
 use Linkorb\MultiRepo\Middleware\ComposerJsonVersionConstraintMiddleware;
 use Linkorb\MultiRepo\Middleware\GithubWorkflowMiddleware;
 use Linkorb\MultiRepo\Middleware\JsonMiddleware;
@@ -65,6 +66,13 @@ class MiddlewareFactory
     {
         return function () use ($io, $executor): ComposerJsonVersionConstraintMiddleware {
             return new ComposerJsonVersionConstraintMiddleware($io, $executor);
+        };
+    }
+
+    public static function createComposerJsonDependencyBlacklist(IoInterface $io, ShExecHelper $executor): callable
+    {
+        return function () use ($io, $executor): ComposerJsonDependencyBlacklistMiddleware {
+            return new ComposerJsonDependencyBlacklistMiddleware($io, $executor);
         };
     }
 }

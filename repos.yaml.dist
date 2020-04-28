@@ -29,4 +29,8 @@ parameters:
               “.github/workflows/staging.yml”: https://raw.github.com/…./staging.yml.twig
           json: ~
           yaml: ~
-          composerJsonVersionConstraint: ~
+          composerVersionConstraint: ~
+          composerDependencyBlacklist:
+            replace:
+                package-name: replacement # both options can be passed as composer `replace` args
+                abused-package: ~ # do not install package (no replacement)
