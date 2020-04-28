@@ -3,6 +3,7 @@
 namespace Linkorb\MultiRepo\Factory;
 
 use Linkorb\MultiRepo\Middleware\CircleCiMiddleware;
+use Linkorb\MultiRepo\Middleware\ComposerJsonVersionConstraintMiddleware;
 use Linkorb\MultiRepo\Middleware\GithubWorkflowMiddleware;
 use Linkorb\MultiRepo\Middleware\JsonMiddleware;
 use Linkorb\MultiRepo\Middleware\QaCheckMiddleware;
@@ -57,6 +58,13 @@ class MiddlewareFactory
     {
         return function () use ($io): YamlMiddleware {
             return new YamlMiddleware($io);
+        };
+    }
+
+    public static function createComposerJsonVersionConstraint(IoInterface $io, ShExecHelper $executor): callable
+    {
+        return function () use ($io, $executor): ComposerJsonVersionConstraintMiddleware {
+            return new ComposerJsonVersionConstraintMiddleware($io, $executor);
         };
     }
 }

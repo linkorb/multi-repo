@@ -29,3 +29,4 @@ parameters:
               “.github/workflows/staging.yml”: https://raw.github.com/…./staging.yml.twig
           json: ~
           yaml: ~
+          composerJsonVersionConstraint: ~
