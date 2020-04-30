@@ -5,6 +5,7 @@ namespace Linkorb\MultiRepo\Factory;
 use Linkorb\MultiRepo\Middleware\CircleCiMiddleware;
 use Linkorb\MultiRepo\Middleware\ComposerJsonDependencyBlacklistMiddleware;
 use Linkorb\MultiRepo\Middleware\ComposerJsonVersionConstraintMiddleware;
+use Linkorb\MultiRepo\Middleware\ConventionalCommitMiddleware;
 use Linkorb\MultiRepo\Middleware\EditorConfigMiddleware;
 use Linkorb\MultiRepo\Middleware\GithubWorkflowMiddleware;
 use Linkorb\MultiRepo\Middleware\JsonMiddleware;
@@ -14,7 +15,6 @@ use Linkorb\MultiRepo\Services\Helper\DockerfileInitHelper;
 use Linkorb\MultiRepo\Services\Helper\ShExecHelper;
 use Linkorb\MultiRepo\Services\Helper\TemplateLocationHelper;
 use Linkorb\MultiRepo\Services\Io\IoInterface;
-use Twig\Environment;
 
 class MiddlewareFactory
 {
@@ -27,25 +27,21 @@ class MiddlewareFactory
 
     public static function createGithubActionsFactory(
         TemplateLocationHelper $helper,
-        Environment $twig,
-        IoInterface $io,
         DockerfileInitHelper $dockerfileHelper
     ): callable
     {
-        return function () use ($helper, $twig, $io, $dockerfileHelper): GithubWorkflowMiddleware {
-            return new GithubWorkflowMiddleware($helper, $twig, $io, $dockerfileHelper);
+        return function () use ($helper, $dockerfileHelper): GithubWorkflowMiddleware {
+            return new GithubWorkflowMiddleware($helper, $dockerfileHelper);
         };
     }
 
     public static function createCircleCiFactory(
         TemplateLocationHelper $helper,
-        Environment $twig,
-        IoInterface $io,
         DockerfileInitHelper $dockerfileHelper
     ): callable
     {
-        return function () use ($helper, $twig, $io, $dockerfileHelper): CircleCiMiddleware {
-            return new CircleCiMiddleware($helper, $twig, $io, $dockerfileHelper);
+        return function () use ($helper, $dockerfileHelper): CircleCiMiddleware {
+            return new CircleCiMiddleware($helper, $dockerfileHelper);
         };
     }
 
@@ -77,14 +73,21 @@ class MiddlewareFactory
         };
     }
 
-    public static function createEditorConfig(
+    public static function createEditorConfig(TemplateLocationHelper $helper): callable
+    {
+        return function () use ($helper): EditorConfigMiddleware {
+            return new EditorConfigMiddleware($helper);
+        };
+    }
+
+    public static function createConventionalCommit(
         TemplateLocationHelper $helper,
-        Environment $twig,
+        ShExecHelper $executor,
         IoInterface $io
     ): callable
     {
-        return function () use ($helper, $twig, $io): EditorConfigMiddleware {
-            return new EditorConfigMiddleware($helper, $twig, $io);
+        return function () use ($helper, $executor, $io): ConventionalCommitMiddleware {
+            return new ConventionalCommitMiddleware($helper, $executor, $io);
         };
     }
 }

@@ -36,3 +36,6 @@ parameters:
                 abused-package: ~ # do not install package (no replacement)
           editorConfig:
             template: https://raw.github.com/linkorb/templates/editorConfig/config.yml.twig
+          conventionalCommit:
+            versionrc: https://raw.github.com/linkorb/templates/conventionalCommit/.versionrc.twig
+            config: https://raw.github.com/linkorb/templates/conventionalCommit/config.js.twig
