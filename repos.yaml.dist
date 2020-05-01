@@ -27,8 +27,14 @@ parameters:
             templates:
               “.github/workflows/production.yml”: https://raw.github.com/…./production.yml.twig
               “.github/workflows/staging.yml”: https://raw.github.com/…./staging.yml.twig
-          json: ~
-          yaml: ~
+          json:
+              indentStyle: space # one of "space|tab"
+              indentSize: 2
+              lineBreaks: LF # one of "CR|LF|CRLF"
+          yaml:
+              indentStyle: space # one of "space|tab"
+              indentSize: 2
+              lineBreaks: LF # one of "CR|LF|CRLF"
           composerVersionConstraint: ~
           composerDependencyBlacklist:
             replace:
