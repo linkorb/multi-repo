@@ -30,20 +30,23 @@ class YamlMiddleware implements MiddlewareInterface
             $filename = array_pop($filePathComponents);
             $fileDir = implode(DIRECTORY_SEPARATOR, $filePathComponents);
 
-            $content = preg_replace(
-                '/^---\n(.*)\.\.\.$/ms',
-                '$1',
-                yaml_emit(
-                    Yaml::parse($this->io->read($filePath))
-                )
+            $identSize = $input->getFixerData()['indentSize'] ?? 2;
+
+            $content = Yaml::dump(
+                Yaml::parse($this->io->read($filePath)),
+                100,
+                $identSize,
+                Yaml::DUMP_EMPTY_ARRAY_AS_SEQUENCE | Yaml::DUMP_NULL_AS_TILDE | Yaml::DUMP_OBJECT | Yaml::DUMP_OBJECT_AS_MAP
             );
 
-            $content = $this->fixIndent(
-                $content,
-                2,
-                $input->getFixerData()['indentStyle'] ?? null,
-                $input->getFixerData()['indentSize'] ?? 2
-            );
+            if (!in_array($input->getFixerData()['indentStyle'] ?? null, [null, 'space'], true)) {
+                $content = $this->fixIndent(
+                    $content,
+                    $identSize,
+                    $input->getFixerData()['indentStyle'] ?? null,
+                    $identSize
+                );
+            }
 
             $content = $this->fixLineBreaks($content, $input->getFixerData()['lineBreaks'] ?? null);
 
