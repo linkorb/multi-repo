@@ -34,7 +34,7 @@ class YamlMiddleware implements MiddlewareInterface
 
             $content = Yaml::dump(
                 Yaml::parse($this->io->read($filePath)),
-                100,
+                $input->getFixerData()['inline'] ?? 100,
                 $identSize,
                 Yaml::DUMP_EMPTY_ARRAY_AS_SEQUENCE | Yaml::DUMP_NULL_AS_TILDE | Yaml::DUMP_OBJECT | Yaml::DUMP_OBJECT_AS_MAP
             );
