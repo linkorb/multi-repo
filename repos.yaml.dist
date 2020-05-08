@@ -27,3 +27,22 @@ parameters:
             templates:
               “.github/workflows/production.yml”: https://raw.github.com/…./production.yml.twig
               “.github/workflows/staging.yml”: https://raw.github.com/…./staging.yml.twig
+          json:
+              indentStyle: space # one of "space|tab"
+              indentSize: 2
+              lineBreaks: LF # one of "CR|LF|CRLF"
+              inline: 100 # how deep do you want to unfold collections (`-` instead of `[]`)
+          yaml:
+              indentStyle: space # one of "space|tab"
+              indentSize: 2
+              lineBreaks: LF # one of "CR|LF|CRLF"
+          composerVersionConstraint: ~
+          composerDependencyBlacklist:
+            replace:
+                package-name: replacement # both options can be passed as composer `replace` args
+                abused-package: ~ # do not install package (no replacement)
+          editorConfig:
+            template: https://raw.github.com/linkorb/templates/editorConfig/config.yml.twig
+          conventionalCommit:
+            versionrc: https://raw.github.com/linkorb/templates/conventionalCommit/.versionrc.twig
+            config: https://raw.github.com/linkorb/templates/conventionalCommit/config.js.twig

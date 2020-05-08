@@ -13,4 +13,6 @@ interface IoInterface
     public function read(string $path): string;
 
     public function write(string $dir, string $file, string $content): self;
+
+    public function findBy(string $pattern, string $directory = './'): iterable;
 }
