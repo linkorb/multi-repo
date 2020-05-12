@@ -16,11 +16,10 @@ To specify list of repositories and define rules `repos.yaml` file used. See `re
 ```yaml
 parameters:
   repos:
-    list:
-      myAwesomeRepo: 'git@github.com:linkorb/your-repo-name.git'
     defaults: ~
     configs:
       myAwesomeRepo:
+        gitUrl: 'git@github.com:linkorb/your-repo-name.git'
         variables: ~
         fixers:
           circleci:

@@ -1,13 +1,11 @@
 parameters:
   repos:
-    # specify name: url collection for repositories to fix here
-    list:
-      repoExample: git@github.com:vendor/repo-name.git
     # specify path or url to base yaml with defaults that will be array-merged with this file.
     # this allows for one or two common base files to specify fixer rules etc
     defaults: https://raw.github.com/linkorb/templates/master/repo.defaults.yaml
     configs:
       repoExample:
+        gitUrl: git@github.com:vendor/repo-name.git # github url for repo (required)
         # define arbitrary custom variables, can be used in fixers/templates/etc
         variables:
           copyright: linkorb
