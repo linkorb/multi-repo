@@ -5,6 +5,7 @@ namespace Linkorb\MultiRepo\Services\Manager;
 use Cz\Git\GitException;
 use Cz\Git\GitRepository;
 use Cz\Git\IGit;
+use Linkorb\MultiRepo\Exception\RepositoryHasUncommittedChangesException;
 use UnderflowException;
 
 class GitRepositoriesManager
@@ -19,7 +20,7 @@ class GitRepositoriesManager
         $repo = $this->instantiateRepository($repositoryName, $repositoryDsn, $path);
 
         if ($repo->hasChanges()) {
-            throw new UnderflowException(
+            throw new RepositoryHasUncommittedChangesException(
                 sprintf(
                     'Repository %s already contains uncommitted changes. Please either commit or discard them',
                     $repositoryName
