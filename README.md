@@ -35,4 +35,12 @@ parameters:
 ```
 
 ## Run command
-To execute command please run `/app/bin/console linkorb:multi-repo:fix`. It's possible to run over specific repo only or apply specific fixer. For more options take a look on: `/app/bin/console linkorb:multi-repo:fix --help` 
+To execute command please run `/app/bin/console linkorb:multi-repo:fix`. It's possible to run over specific repo only or apply a specific fixer. For more options take a look on: `/app/bin/console linkorb:multi-repo:fix --help` 
+
+## Flow
+* Once you'll run fix command, tool will iterate over all repositories, do `git clone` (if needed) and `git pull` on default branch (which is master in most of the cases).
+* After command finished execution, you can go to repositories under `./repositories/source` directory, review, commit & push changes.
+* If you want to have an overview of repositories which will contain any changes, please run: `/app/bin/console linkorb:multi-repo:list-uncommitted`
+* Repositories structured in following way: 
+  * `source` directory which contains an actual state of repository, changes, ets.
+  * `cache` directory which meant to be used for restoring initial data in case of exception during an execution
