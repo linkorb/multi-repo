@@ -21,7 +21,7 @@ class YamlMiddleware implements MiddlewareInterface
     public function __invoke(FixerInputDto $input, callable $next): void
     {
         foreach ($this->io->findBy('/^.+\.(yml|yaml)$/i', $input->getRepositoryPath()) as $filePath => $fileResult) {
-            if (preg_match('/^.\/vendor./', $filePath)) {
+            if (preg_match('/\/(vendor|node_modules)/', $filePath)) {
                 // Do not fix dependencies :)
                 continue;
             }

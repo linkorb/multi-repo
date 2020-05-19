@@ -43,7 +43,7 @@ class ComposerJsonDependencyBlacklistMiddleware implements MiddlewareInterface
                 json_encode($composerJson, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
             );
 
-            list($code) = $this->executor->exec('composer update', $input->getRepositoryPath());
+            list($code) = $this->executor->exec('composer update --no-scripts', $input->getRepositoryPath());
 
             if ($code !== 0) {
                 throw new Exception('Composer dependency blacklist composer update failed with code: ' . $code);

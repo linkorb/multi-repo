@@ -44,7 +44,7 @@ services:
 
     Linkorb\MultiRepo\Services\Helper\DockerfileInitHelper:
         arguments:
-            $templatesDir: '%kernel.project_dir%/templates/dockerfile'
+            $templatesDir: 'dockerfile'
 
     Linkorb\MultiRepo\Services\Helper\TemplateLocationHelper:
         arguments:
