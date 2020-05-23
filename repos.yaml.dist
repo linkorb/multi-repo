@@ -10,6 +10,7 @@ parameters:
         variables:
           copyright: linkorb
           logoUrl: http://github.com/linkorb.png
+          phpcsConfig: https://raw.github.com/linkorb/templates/qaChecks/phpcs.xml.dist.twig # this variable is important for phpcs qa-check
         # Define which fixers to run, in which order, and their parameters
         fixers:
           qaChecks:
