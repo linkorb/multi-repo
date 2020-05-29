@@ -5,6 +5,7 @@ namespace Linkorb\MultiRepo\Handler;
 use Generator;
 use InvalidArgumentException;
 use Linkorb\MultiRepo\Dto\RepoInputDto;
+use Linkorb\MultiRepo\Exception\RepositoryHasUncommittedChangesException;
 use Linkorb\MultiRepo\Services\Helper\TemplateLocationHelper;
 
 class MultiRepositoryHandler
@@ -27,11 +28,11 @@ class MultiRepositoryHandler
 
     public function iterateHandle(): Generator
     {
-        foreach ($this->config['list'] as $repoName => $repoDsn) {
+        foreach ($this->config['configs'] as $repoName => $repoData) {
             $this->repositoryHandler->handle(
                 new RepoInputDto(
                     $repoName,
-                    $repoDsn,
+                    $repoData['gitUrl'],
                     array_replace_recursive($this->defaults() ?? [], $this->config['configs'][$repoName])
                 )
             );
@@ -40,9 +41,22 @@ class MultiRepositoryHandler
         }
     }
 
+    public function iterateHasChanges(): Generator
+    {
+        foreach ($this->config['configs'] as $repoName => $repoData) {
+            try {
+                $this->repositoryHandler->refreshRepository(
+                    new RepoInputDto($repoName, $repoData['gitUrl'], [])
+                );
+            } catch (RepositoryHasUncommittedChangesException $exception) {
+                yield $repoName;
+            }
+        }
+    }
+
     public function getRepositoriesCount(): int
     {
-        return count($this->config['list']);
+        return count($this->config['configs']);
     }
 
     /**
@@ -50,22 +64,15 @@ class MultiRepositoryHandler
      */
     public function replaceRepositories(array $repositories): void
     {
-        $currentRepoList = $this->config['list'];
-        $this->config['list'] = [];
+        $currentRepoList = $this->config['configs'];
+        $this->config['configs'] = [];
 
-        foreach ($repositories as $repositoryPath) {
-            $repoPathComponents = explode(DIRECTORY_SEPARATOR, $repositoryPath);
-            $repoName = end($repoPathComponents);
-
-            if ($repoName === false) {
-                throw new InvalidArgumentException('Wrong repository path passed');
-            }
-
+        foreach ($repositories as $repoName) {
             if (!array_key_exists($repoName, $currentRepoList)) {
                 throw new InvalidArgumentException(sprintf('Passed repository `%s` doesn\'t exists in config', $repoName));
             }
 
-            $this->config['list'][$repoName] = $currentRepoList[$repoName];
+            $this->config['configs'][$repoName] = $currentRepoList[$repoName];
         }
     }
 
@@ -80,12 +87,9 @@ class MultiRepositoryHandler
             $this->defaults()['fixers'] = array_intersect_key($this->defaults()['fixers'], $fixers);
         }
 
-        foreach ($this->config['list'] as $repoName => $repoDsn) {
-            if ($this->config['configs'][$repoName]['fixers'] ?? false) {
-                $this->config['configs'][$repoName]['fixers'] = array_intersect_key(
-                    $this->config['configs'][$repoName]['fixers'],
-                    $fixers
-                );
+        foreach ($this->config['configs'] as $repoName => $repoData) {
+            if ($repoData['fixers'] ?? false) {
+                $repoData['fixers'] = array_intersect_key($repoData['fixers'], $fixers);
             }
         }
     }

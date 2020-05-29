@@ -32,10 +32,10 @@ class RepositoriesFixCommand extends Command
                 'Apply only specified fixer'
             )
             ->addOption(
-                'path',
+                'repo',
                 null,
                 InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
-                'Run command on specified path only'
+                'Run command on specified repositories only'
             )
             ->addOption(
                 'debug',
@@ -49,8 +49,8 @@ class RepositoriesFixCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         try {
-            if ($input->getOption('path') !== []) {
-                $this->multiRepositoryHandler->replaceRepositories($input->getOption('path'));
+            if ($input->getOption('repo') !== []) {
+                $this->multiRepositoryHandler->replaceRepositories($input->getOption('repo'));
             }
 
             if ($input->getOption('fixer') !== []) {

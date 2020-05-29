@@ -6,6 +6,7 @@ use Exception;
 use InvalidArgumentException;
 use Linkorb\MultiRepo\Dto\FixerInputDto;
 use Linkorb\MultiRepo\Services\Helper\ShExecHelper;
+use Linkorb\MultiRepo\Services\Helper\TemplateLocationHelper;
 use Linkorb\MultiRepo\Services\Io\IoInterface;
 
 class QaCheckMiddleware implements MiddlewareInterface
@@ -20,10 +21,17 @@ class QaCheckMiddleware implements MiddlewareInterface
 
     private ShExecHelper $executor;
 
-    public function __construct(IoInterface $io, ShExecHelper $executor)
+    private TemplateLocationHelper $templateLocationHelper;
+
+    public function __construct(
+        IoInterface $io,
+        ShExecHelper $executor,
+        TemplateLocationHelper $templateLocationHelper
+    )
     {
         $this->io = $io;
         $this->executor = $executor;
+        $this->templateLocationHelper = $templateLocationHelper;
     }
 
     public function __invoke(FixerInputDto $input, callable $next): void
@@ -101,6 +109,13 @@ DOC;
             'composer.json',
             json_encode($composerJson, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
         );
+
+        if (in_array(static::PHPCS, $checks, true) && isset($input->getVariables()['phpcsConfig'])) {
+            $this->templateLocationHelper->putIfMissingFromLocation(
+                $input->getVariables()['phpcsConfig'],
+                [$input->getRepositoryPath(), 'phpcs.xml.dist']
+            );
+        }
     }
 
     private function createPackages(array $checks): array

@@ -37,16 +37,7 @@ class RepositoryHandler
 
     public function handle(RepoInputDto $repoInputDto): void
     {
-        $repoInputDto->repositoryPath = implode(
-            DIRECTORY_SEPARATOR,
-            [$this->repositoriesBasePath, static::SOURCE_DIR, $repoInputDto->getName()]
-        );
-
-        $this->manager->refresh(
-            $repoInputDto->getName(),
-            $repoInputDto->getDsn(),
-            $this->repositoriesBasePath . DIRECTORY_SEPARATOR . static::SOURCE_DIR
-        );
+        $this->refreshRepository($repoInputDto);
 
         $stack = $this->getMiddlewareStack();
 
@@ -65,6 +56,20 @@ class RepositoryHandler
         }
 
         $this->removeBackup($repoInputDto->getName());
+    }
+
+    public function refreshRepository(RepoInputDto $repoInputDto): void
+    {
+        $repoInputDto->repositoryPath = implode(
+            DIRECTORY_SEPARATOR,
+            [$this->repositoriesBasePath, static::SOURCE_DIR, $repoInputDto->getName()]
+        );
+
+        $this->manager->refresh(
+            $repoInputDto->getName(),
+            $repoInputDto->getDsn(),
+            $this->repositoriesBasePath . DIRECTORY_SEPARATOR . static::SOURCE_DIR
+        );
     }
 
     private function getMiddlewareStack(): MiddlewareStack

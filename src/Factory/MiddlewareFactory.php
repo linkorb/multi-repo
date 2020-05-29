@@ -18,10 +18,14 @@ use Linkorb\MultiRepo\Services\Io\IoInterface;
 
 class MiddlewareFactory
 {
-    public static function createQaFactory(IoInterface $io, ShExecHelper $executor): callable
+    public static function createQaFactory(
+        IoInterface $io,
+        ShExecHelper $executor,
+        TemplateLocationHelper $templateLocationHelper
+    ): callable
     {
-        return function () use ($io, $executor): QaCheckMiddleware {
-            return new QaCheckMiddleware($io, $executor);
+        return function () use ($io, $executor, $templateLocationHelper): QaCheckMiddleware {
+            return new QaCheckMiddleware($io, $executor, $templateLocationHelper);
         };
     }
 
