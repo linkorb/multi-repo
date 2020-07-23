@@ -8,10 +8,7 @@ COPY --chown=www-data:www-data . /app
 
 WORKDIR /app
 
-USER www-data
 RUN ./dinit.sh
-
-USER root
 
 ENTRYPOINT ["docker-entrypoint"]
 
