@@ -49,3 +49,4 @@ services:
     Linkorb\MultiRepo\Services\Helper\TemplateLocationHelper:
         arguments:
             $twig: '@twig'
+            $authorizationHeader: '%env(default::HTTP_CLIENT_AUTHORIZATION_TYPE)% %env(default::HTTP_CLIENT_AUTHORIZATION_VALUE)%'
