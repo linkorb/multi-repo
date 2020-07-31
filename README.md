@@ -41,9 +41,10 @@ To execute command please run `/app/bin/console linkorb:multi-repo:fix`. It's po
 * Once you'll run fix command, tool will iterate over all repositories, do `git clone` (if needed) and `git pull` on default branch (which is master in most of the cases).
 * After command finished execution, you can go to repositories under `./repositories/source` directory, review, commit & push changes.
 * If you want to have an overview of repositories which will contain any changes, please run: `/app/bin/console linkorb:multi-repo:list-uncommitted`
-* Repositories structured in following way: 
-  * `source` directory which contains an actual state of repository, changes, ets.
-  * `cache` directory which meant to be used for restoring initial data in case of exception during an execution
+
+## The repositories base path
+* By default, `repositories/` in this project's directory is used as the repository base path.
+  You can change this to a different location by specifying a custom absolute path in `REPOSITORIES_PATH` in your `.env.local` file
 
 ## Miscellaneous
 * To access protected url as a template for fixer, etc. you need to define in `.env` following parameters:
