@@ -11,8 +11,7 @@ use Throwable;
 
 class RepositoryHandler
 {
-    private const SOURCE_DIR = 'source';
-    private const CACHE_DIR = 'cache';
+    private const CACHE_DIR = '.multi-repo-cache';
 
     private GitRepositoriesManager $manager;
 
@@ -62,13 +61,13 @@ class RepositoryHandler
     {
         $repoInputDto->repositoryPath = implode(
             DIRECTORY_SEPARATOR,
-            [$this->repositoriesBasePath, static::SOURCE_DIR, $repoInputDto->getName()]
+            [$this->repositoriesBasePath, $repoInputDto->getName()]
         );
 
         $this->manager->refresh(
             $repoInputDto->getName(),
             $repoInputDto->getDsn(),
-            $this->repositoriesBasePath . DIRECTORY_SEPARATOR . static::SOURCE_DIR
+            $this->repositoriesBasePath
         );
     }
 
@@ -82,7 +81,7 @@ class RepositoryHandler
         $this->io->copyDir(
             implode(
                 DIRECTORY_SEPARATOR,
-                [$this->repositoriesBasePath, static::SOURCE_DIR, $repoName]
+                [$this->repositoriesBasePath, $repoName]
             ),
             implode(
                 DIRECTORY_SEPARATOR,
@@ -95,7 +94,7 @@ class RepositoryHandler
     {
         $this->io->removeDir(implode(
             DIRECTORY_SEPARATOR,
-            [$this->repositoriesBasePath, static::SOURCE_DIR, $repoName]
+            [$this->repositoriesBasePath, $repoName]
         ));
 
         $this->io->moveDir(
@@ -105,7 +104,7 @@ class RepositoryHandler
             ),
             implode(
                 DIRECTORY_SEPARATOR,
-                [$this->repositoriesBasePath, static::SOURCE_DIR]
+                [$this->repositoriesBasePath]
             )
         );
     }
