@@ -19,11 +19,18 @@ final class TemplateLocationHelper
 
     private HttpClientInterface $client;
 
-    public function __construct(IoInterface $io, HttpClientInterface $client, Environment $twig)
-    {
+    private ?string $authorizationHeader;
+
+    public function __construct(
+        IoInterface $io,
+        HttpClientInterface $client,
+        Environment $twig,
+        string $authorizationHeader
+    ) {
         $this->io = $io;
         $this->client = $client;
         $this->twig = $twig;
+        $this->authorizationHeader = empty(trim($authorizationHeader)) ? null : $authorizationHeader;
     }
 
     public function getYamlTemplate(string $dsn): array
@@ -37,7 +44,13 @@ final class TemplateLocationHelper
             case static::LOCAL_PATH:
                 return $this->io->read($dsn);
             case static::REMOTE_URL:
-                return $this->client->request('GET', $dsn)->getContent();
+                return $this->client
+                    ->request(
+                        'GET',
+                        $dsn,
+                        ['headers' => ['Authorization' => $this->authorizationHeader]]
+                    )
+                    ->getContent();
             default:
                 throw new UnexpectedValueException();
         }

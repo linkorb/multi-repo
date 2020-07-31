@@ -35,7 +35,7 @@ class UnixIo implements IoInterface
         return file_get_contents($path);
     }
 
-    public function write(string $dir, string $file, string $content): self
+    public function write(string $dir, string $file, string $content, int $mode = null): self
     {
         $path = $dir . DIRECTORY_SEPARATOR . $file;
 
@@ -45,6 +45,10 @@ class UnixIo implements IoInterface
 
         if (file_put_contents($path, $content) === false) {
             throw new Exception(sprintf('Unable to write to path %s', $path));
+        }
+
+        if ($mode) {
+            chmod($path, $mode);
         }
 
         return $this;

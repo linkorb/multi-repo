@@ -37,7 +37,8 @@ final class DockerfileInitHelper
                     ->write(
                         $repositoryPath,
                         'dinit.sh',
-                        $this->twig->render($this->templatesDir . DIRECTORY_SEPARATOR . 'dinit.sh.twig')
+                        $this->twig->render($this->templatesDir . DIRECTORY_SEPARATOR . 'dinit.sh.twig'),
+                        0777
                     );
 
                 return 'Dockerfile.qa';

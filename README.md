@@ -44,3 +44,8 @@ To execute command please run `/app/bin/console linkorb:multi-repo:fix`. It's po
 * Repositories structured in following way: 
   * `source` directory which contains an actual state of repository, changes, ets.
   * `cache` directory which meant to be used for restoring initial data in case of exception during an execution
+
+## Miscellaneous
+* To access protected url as a template for fixer, etc. you need to define in `.env` following parameters:
+    * HTTP_CLIENT_AUTHORIZATION_TYPE (`token` for github access tokens)
+    * HTTP_CLIENT_AUTHORIZATION_VALUE
