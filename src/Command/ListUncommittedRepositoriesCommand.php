@@ -20,6 +20,11 @@ class ListUncommittedRepositoriesCommand extends Command
         parent::__construct();
     }
 
+    protected function configure(): void
+    {
+        $this->setDescription('List repositories which have uncommitted changes');
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         foreach ($this->multiRepositoryHandler->iterateHasChanges() as $repoName) {
