@@ -24,17 +24,84 @@ services:
 
     Linkorb\MultiRepo\Services\Io\IoInterface: '@Linkorb\MultiRepo\Services\Io\UnixIo'
 
+    # Here we're populating middleware factory pool with factories for each middleware type.
+    # With that we ensure each middleware type binds to it's own factory and for each repo run of tool
+    # we will create fresh version of middleware
     Linkorb\MultiRepo\Factory\MiddlewareFactoryPool:
         calls:
-            - [addToPool, ['githubWorkflows', !service { factory: ['Linkorb\MultiRepo\Factory\MiddlewareFactory', 'createGithubActionsFactory'], arguments: ['@Linkorb\MultiRepo\Services\Helper\TemplateLocationHelper', '@Linkorb\MultiRepo\Services\Helper\DockerfileInitHelper'] }]]
-            - [addToPool, ['qaChecks', !service { factory: ['Linkorb\MultiRepo\Factory\MiddlewareFactory', 'createQaFactory'], arguments: ['@Linkorb\MultiRepo\Services\Io\IoInterface', '@Linkorb\MultiRepo\Services\Helper\ShExecHelper', '@Linkorb\MultiRepo\Services\Helper\TemplateLocationHelper'] }]]
-            - [addToPool, ['circleci', !service { factory: ['Linkorb\MultiRepo\Factory\MiddlewareFactory', 'createCircleCiFactory'], arguments: ['@Linkorb\MultiRepo\Services\Helper\TemplateLocationHelper', '@Linkorb\MultiRepo\Services\Helper\DockerfileInitHelper'] }]]
-            - [addToPool, ['json', !service { factory: ['Linkorb\MultiRepo\Factory\MiddlewareFactory', 'createJsonFactory'], arguments: ['@Linkorb\MultiRepo\Services\Io\IoInterface'] }]]
-            - [addToPool, ['yaml', !service { factory: ['Linkorb\MultiRepo\Factory\MiddlewareFactory', 'createYamlFactory'], arguments: ['@Linkorb\MultiRepo\Services\Io\IoInterface'] }]]
-            - [addToPool, ['composerVersionConstraint', !service { factory: ['Linkorb\MultiRepo\Factory\MiddlewareFactory', 'createComposerJsonVersionConstraint'], arguments: ['@Linkorb\MultiRepo\Services\Io\IoInterface', '@Linkorb\MultiRepo\Services\Helper\ShExecHelper'] }]]
-            - [addToPool, ['composerDependencyBlacklist', !service { factory: ['Linkorb\MultiRepo\Factory\MiddlewareFactory', 'createComposerJsonDependencyBlacklist'], arguments: ['@Linkorb\MultiRepo\Services\Io\IoInterface', '@Linkorb\MultiRepo\Services\Helper\ShExecHelper'] }]]
-            - [addToPool, ['editorConfig', !service { factory: ['Linkorb\MultiRepo\Factory\MiddlewareFactory', 'createEditorConfig'], arguments: ['@Linkorb\MultiRepo\Services\Helper\TemplateLocationHelper'] }]]
-            - [addToPool, ['conventionalCommit', !service { factory: ['Linkorb\MultiRepo\Factory\MiddlewareFactory', 'createConventionalCommit'], arguments: ['@Linkorb\MultiRepo\Services\Helper\TemplateLocationHelper', '@Linkorb\MultiRepo\Services\Helper\ShExecHelper', '@Linkorb\MultiRepo\Services\Io\IoInterface'] }]]
+            -
+                - addToPool
+                -
+                    - 'githubWorkflows'
+                    - !service
+                        factory: ['Linkorb\MultiRepo\Factory\MiddlewareFactory', 'createGithubActionsFactory']
+                        arguments:
+                            - '@Linkorb\MultiRepo\Services\Helper\TemplateLocationHelper'
+                            - '@Linkorb\MultiRepo\Services\Helper\DockerfileInitHelper'
+            -
+                - addToPool
+                -
+                    - 'qaChecks'
+                    - !service
+                        factory: ['Linkorb\MultiRepo\Factory\MiddlewareFactory', 'createQaFactory']
+                        arguments:
+                            - '@Linkorb\MultiRepo\Services\Io\IoInterface'
+                            - '@Linkorb\MultiRepo\Services\Helper\ShExecHelper'
+                            - '@Linkorb\MultiRepo\Services\Helper\TemplateLocationHelper'
+            -
+                - addToPool
+                -
+                    - 'circleci'
+                    - !service
+                        factory: ['Linkorb\MultiRepo\Factory\MiddlewareFactory', 'createCircleCiFactory']
+                        arguments:
+                            - '@Linkorb\MultiRepo\Services\Helper\TemplateLocationHelper'
+                            - '@Linkorb\MultiRepo\Services\Helper\DockerfileInitHelper'
+            -
+                - addToPool
+                -
+                    - 'json'
+                    - !service
+                        factory: ['Linkorb\MultiRepo\Factory\MiddlewareFactory', 'createJsonFactory']
+                        arguments: ['@Linkorb\MultiRepo\Services\Io\IoInterface']
+            -
+                - addToPool
+                -
+                    - 'yaml'
+                    - !service
+                        factory: ['Linkorb\MultiRepo\Factory\MiddlewareFactory', 'createYamlFactory']
+                        arguments: ['@Linkorb\MultiRepo\Services\Io\IoInterface']
+            -
+                - addToPool
+                -
+                    - 'composerVersionConstraint'
+                    - !service
+                        factory: ['Linkorb\MultiRepo\Factory\MiddlewareFactory', 'createComposerJsonVersionConstraint']
+                        arguments: ['@Linkorb\MultiRepo\Services\Io\IoInterface', '@Linkorb\MultiRepo\Services\Helper\ShExecHelper']
+            -
+                - addToPool
+                -
+                    - 'composerDependencyBlacklist'
+                    - !service
+                        factory: ['Linkorb\MultiRepo\Factory\MiddlewareFactory', 'createComposerJsonDependencyBlacklist']
+                        arguments: ['@Linkorb\MultiRepo\Services\Io\IoInterface', '@Linkorb\MultiRepo\Services\Helper\ShExecHelper']
+            -
+                - addToPool
+                -
+                    - 'editorConfig'
+                    - !service
+                        factory: ['Linkorb\MultiRepo\Factory\MiddlewareFactory', 'createEditorConfig']
+                        arguments: ['@Linkorb\MultiRepo\Services\Helper\TemplateLocationHelper']
+            -
+                - addToPool
+                -
+                    - 'conventionalCommit'
+                    - !service
+                        factory: ['Linkorb\MultiRepo\Factory\MiddlewareFactory', 'createConventionalCommit']
+                        arguments:
+                            - '@Linkorb\MultiRepo\Services\Helper\TemplateLocationHelper'
+                            - '@Linkorb\MultiRepo\Services\Helper\ShExecHelper'
+                            - '@Linkorb\MultiRepo\Services\Io\IoInterface'
 
     Linkorb\MultiRepo\Handler\RepositoryHandler:
         arguments:
@@ -52,3 +119,7 @@ services:
         arguments:
             $twig: '@twig'
             $authorizationHeader: '%env(default::HTTP_CLIENT_AUTHORIZATION_TYPE)% %env(default::HTTP_CLIENT_AUTHORIZATION_VALUE)%'
+
+    Linkorb\MultiRepo\Command\DumpConfigCommand:
+        arguments:
+            $config: '%repos%'
