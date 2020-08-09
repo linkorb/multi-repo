@@ -4,7 +4,7 @@ namespace Linkorb\MultiRepo\Services\Io;
 
 use Exception;
 
-// TODO: Implement UnifiedIo which will use php functions for dir operations
+// TODO: Use https://symfony.com/doc/current/components/process.html instead
 class UnixIo implements IoInterface
 {
     use FindByAwareTrait;

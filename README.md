@@ -44,7 +44,9 @@ To execute command please run `/app/bin/console linkorb:multi-repo:fix`. It's po
 
 ## The repositories base path
 * By default, `repositories/` in this project's directory is used as the repository base path.
-  You can change this to a different location by specifying a custom absolute path in `REPOSITORIES_PATH` in your `.env.local` file
+  You can change this to a different location by specifying a custom absolute path in `MULTI_REPO_REPOSITORIES_PATH` in your `.env.local` file
+* You can also specify custom `repos.yaml` location. For that you need to specify `MULTI_REPO_CONFIG_PATH` (defaults: under root dir). 
+  It must be either absolute path or relative from root dir and ends up with config file name.
 * The repositories base path directory is structured in the following way: 
   * one directory per configured repository (optionally with sub-directories), which contains an actual state of each repository, changes, etc.
   * `.multi-repo-cache` directory which is meant to be used for restoring initial data in case of exception during an execution
