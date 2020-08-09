@@ -10,14 +10,14 @@ use Linkorb\MultiRepo\Services\Helper\TemplateLocationHelper;
 
 class MultiRepositoryHandler
 {
-    private RepositoryHandler $repositoryHandler;
+    private RepositoryHandlerInterface $repositoryHandler;
 
     private TemplateLocationHelper $templateLocationHelper;
 
     private array $config;
 
     public function __construct(
-        RepositoryHandler $repositoryHandler,
+        RepositoryHandlerInterface $repositoryHandler,
         TemplateLocationHelper $templateLocationHelper,
         array $config
     ) {

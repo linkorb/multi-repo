@@ -22,6 +22,14 @@ class Kernel extends BaseKernel
             (require $path)($container->withPath($path), $this);
         }
 
-        $container->import(__DIR__ . '/../' . ($_ENV['MULTI_REPO_CONFIG_PATH'] ?? 'repos.yaml'));
+        $this->loadReposConfig($container);
+    }
+
+    private function loadReposConfig(ContainerConfigurator $container): void
+    {
+        $reposPath = $_ENV['MULTI_REPO_CONFIG_PATH'] ?? 'repos.yaml';
+
+        $container->import(__DIR__ . '/../' . $reposPath);
+        $container->parameters()->set('repositoriesConfigPath', $reposPath);
     }
 }

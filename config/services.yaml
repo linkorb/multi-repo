@@ -120,3 +120,11 @@ services:
     Linkorb\MultiRepo\Command\DumpConfigCommand:
         arguments:
             $config: '%repos%'
+
+    Linkorb\MultiRepo\Handler\RepositoryHandlerProxy:
+        arguments:
+            $handler: '@Linkorb\MultiRepo\Handler\RepositoryHandler'
+            $repositoriesBasePath: '%repositoriesBasePath%'
+            $repositoriesConfigPath: '%repositoriesConfigPath%'
+
+    Linkorb\MultiRepo\Handler\RepositoryHandlerInterface: '@Linkorb\MultiRepo\Handler\RepositoryHandlerProxy'

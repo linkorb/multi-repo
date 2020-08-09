@@ -43,4 +43,13 @@ class RepoInputDto
             );
         }
     }
+
+    public function withMetadata(array $metadata): self
+    {
+        $result = clone $this;
+
+        $result->config['metadata'] = array_replace_recursive($metadata, $result->config['metadata'] ?? []);
+
+        return $result;
+    }
 }
