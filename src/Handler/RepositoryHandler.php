@@ -9,7 +9,7 @@ use Linkorb\MultiRepo\Services\Manager\GitRepositoriesManager;
 use Linkorb\MultiRepo\Middleware\Stack\MiddlewareStack;
 use Throwable;
 
-class RepositoryHandler
+class RepositoryHandler implements RepositoryHandlerInterface
 {
     private const CACHE_DIR = '.multi-repo-cache';
 
@@ -36,8 +36,6 @@ class RepositoryHandler
 
     public function handle(RepoInputDto $repoInputDto): void
     {
-        $this->refreshRepository($repoInputDto);
-
         $stack = $this->getMiddlewareStack();
 
         foreach ($repoInputDto->getFixerData(true) as $fixerType => $fixerDatum) {

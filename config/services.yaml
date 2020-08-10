@@ -1,13 +1,10 @@
-imports:
-    - { resource: ../repos.yaml }
-
 # This file is the entry point to configure your own services.
 # Files in the packages/ subdirectory configure your dependencies.
 
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
-    repositoriesBasePath: '%env(default:repositoriesBasePathDefault:REPOSITORIES_PATH)%'
+    repositoriesBasePath: '%env(default:repositoriesBasePathDefault:MULTI_REPO_REPOSITORIES_PATH)%'
     repositoriesBasePathDefault: '%kernel.project_dir%/repositories'
 
 services:
@@ -123,3 +120,11 @@ services:
     Linkorb\MultiRepo\Command\DumpConfigCommand:
         arguments:
             $config: '%repos%'
+
+    Linkorb\MultiRepo\Handler\RepositoryHandlerProxy:
+        arguments:
+            $handler: '@Linkorb\MultiRepo\Handler\RepositoryHandler'
+            $repositoriesBasePath: '%repositoriesBasePath%'
+            $repositoriesConfigPath: '%repositoriesConfigPath%'
+
+    Linkorb\MultiRepo\Handler\RepositoryHandlerInterface: '@Linkorb\MultiRepo\Handler\RepositoryHandlerProxy'
