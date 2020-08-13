@@ -5,6 +5,7 @@ namespace Linkorb\MultiRepo\Handler;
 use Generator;
 use InvalidArgumentException;
 use Linkorb\MultiRepo\Dto\RepoInputDto;
+use Linkorb\MultiRepo\Dto\RepoOutputDto;
 use Linkorb\MultiRepo\Exception\RepositoryHasUncommittedChangesException;
 use Linkorb\MultiRepo\Services\Helper\TemplateLocationHelper;
 
@@ -26,18 +27,19 @@ class MultiRepositoryHandler
         $this->config = $config;
     }
 
+    /**
+     * @return Generator|RepoOutputDto[]
+     */
     public function iterateHandle(): Generator
     {
         foreach ($this->config['configs'] as $repoName => $repoData) {
-            $this->repositoryHandler->handle(
+            yield $this->repositoryHandler->handle(
                 new RepoInputDto(
                     $repoName,
                     $repoData['gitUrl'],
                     array_replace_recursive($this->defaults() ?? [], $this->config['configs'][$repoName])
                 )
             );
-
-            yield $repoName;
         }
     }
 

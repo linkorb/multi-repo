@@ -2,6 +2,7 @@
 
 namespace Linkorb\MultiRepo\Command;
 
+use Linkorb\MultiRepo\Handler\MultiRepositoryHandler;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -10,11 +11,11 @@ class DumpConfigCommand extends Command
 {
     protected static $defaultName = 'linkorb:multi-repo:config';
 
-    private array $config;
+    private MultiRepositoryHandler $multiRepositoryHandler;
 
-    public function __construct(array $config)
+    public function __construct(MultiRepositoryHandler $multiRepositoryHandler)
     {
-        $this->config = $config;
+        $this->multiRepositoryHandler = $multiRepositoryHandler;
 
         parent::__construct();
     }
@@ -26,7 +27,12 @@ class DumpConfigCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        dump($this->config);
+        $config = [];
+        foreach ($this->multiRepositoryHandler->iterateHandle() as $repoOutput) {
+            $config[$repoOutput->getName()] = $repoOutput->config;
+        }
+
+        dump($config);
 
         return 0;
     }

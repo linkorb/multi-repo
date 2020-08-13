@@ -3,6 +3,7 @@
 namespace Linkorb\MultiRepo\Handler;
 
 use Linkorb\MultiRepo\Dto\RepoInputDto;
+use Linkorb\MultiRepo\Dto\RepoOutputDto;
 use Linkorb\MultiRepo\Services\Io\IoInterface;
 use Symfony\Component\Yaml\Yaml;
 
@@ -28,11 +29,11 @@ class RepositoryHandlerProxy implements RepositoryHandlerInterface
         $this->repositoriesConfigPath = $repositoriesConfigPath;
     }
 
-    public function handle(RepoInputDto $repoInputDto): void
+    public function handle(RepoInputDto $repoInputDto): RepoOutputDto
     {
         $this->refreshRepository($repoInputDto);
 
-        $this->handler->handle($this->loadMetadata($repoInputDto));
+        return $this->handler->handle($this->loadMetadata($repoInputDto));
     }
 
     public function refreshRepository(RepoInputDto $repoInputDto): void

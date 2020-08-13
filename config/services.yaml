@@ -119,12 +119,22 @@ services:
 
     Linkorb\MultiRepo\Command\DumpConfigCommand:
         arguments:
-            $config: '%repos%'
+            $multiRepositoryHandler: '@multi_repo.multi_handlers.config_interceptor'
 
     Linkorb\MultiRepo\Handler\RepositoryHandlerProxy:
         arguments:
             $handler: '@Linkorb\MultiRepo\Handler\RepositoryHandler'
             $repositoriesBasePath: '%repositoriesBasePath%'
             $repositoriesConfigPath: '%repositoriesConfigPath%'
+
+    multi_repo.handlers.config_interceptor:
+        parent: Linkorb\MultiRepo\Handler\RepositoryHandlerProxy
+        arguments:
+            $handler: '@Linkorb\MultiRepo\Handler\ConfigInterceptorHandler'
+
+    multi_repo.multi_handlers.config_interceptor:
+        parent: Linkorb\MultiRepo\Handler\MultiRepositoryHandler
+        arguments:
+            $repositoryHandler: '@multi_repo.handlers.config_interceptor'
 
     Linkorb\MultiRepo\Handler\RepositoryHandlerInterface: '@Linkorb\MultiRepo\Handler\RepositoryHandlerProxy'
