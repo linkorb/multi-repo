@@ -44,6 +44,11 @@ class RepoInputDto
         }
     }
 
+    public function getMetadata(): array
+    {
+        return $this->config['metadata'] ?? [];
+    }
+
     public function withMetadata(array $metadata): self
     {
         $result = clone $this;

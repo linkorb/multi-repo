@@ -2,7 +2,9 @@
 
 namespace Linkorb\MultiRepo\Handler;
 
+use Linkorb\MultiRepo\Dto\FixerInputDto;
 use Linkorb\MultiRepo\Dto\RepoInputDto;
+use Linkorb\MultiRepo\Dto\RepoOutputDto;
 use Linkorb\MultiRepo\Factory\MiddlewareFactoryPool;
 use Linkorb\MultiRepo\Services\Io\IoInterface;
 use Linkorb\MultiRepo\Services\Manager\GitRepositoriesManager;
@@ -34,11 +36,18 @@ class RepositoryHandler implements RepositoryHandlerInterface
         $this->repositoriesBasePath = $repositoriesBasePath;
     }
 
-    public function handle(RepoInputDto $repoInputDto): void
+    public function handle(RepoInputDto $repoInputDto): RepoOutputDto
     {
+        $output = new RepoOutputDto($repoInputDto->getName());
+
         $stack = $this->getMiddlewareStack();
 
+        /**
+         * @var string $fixerName
+         * @var FixerInputDto $fixerDatum
+         */
         foreach ($repoInputDto->getFixerData(true) as $fixerType => $fixerDatum) {
+            $output->config[$fixerType] = $fixerDatum->getFixerData();
             $stack->add($this->middlewareFactory->createMiddleware($fixerType));
         }
 
@@ -53,6 +62,8 @@ class RepositoryHandler implements RepositoryHandlerInterface
         }
 
         $this->removeBackup($repoInputDto->getName());
+
+        return $output;
     }
 
     public function refreshRepository(RepoInputDto $repoInputDto): void
