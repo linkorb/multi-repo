@@ -11,6 +11,8 @@ use Throwable;
 
 class RepositoriesFixCommand extends Command
 {
+    use HandleInitializationAwareTrait;
+
     protected static $defaultName = 'linkorb:multi-repo:fix';
 
     private MultiRepositoryHandler $multiRepositoryHandler;
@@ -38,43 +40,30 @@ class RepositoriesFixCommand extends Command
                 'Run command on specified repositories only'
             )
             ->addOption(
-                'debug',
-                null,
-                InputOption::VALUE_OPTIONAL,
-                'Show debug information about errors'
+                'label',
+                'l',
+                InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
+                'Only repos with matching label'
             )
             ->setDescription('Setting up repositories specified in repos.yaml, applying fixers for them');
+
+        $this->configureBase();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        try {
-            if ($input->getOption('repo') !== []) {
-                $this->multiRepositoryHandler->replaceRepositories($input->getOption('repo'));
-            }
-
-            if ($input->getOption('fixer') !== []) {
-                $this->multiRepositoryHandler->replaceFixers($input->getOption('fixer'));
-            }
-        } catch (Throwable $exception) {
-            return $this->handleException(
-                $output,
-                $exception,
-                $input->hasOption('debug'),
-                sprintf('Got error during initialization: %s', $exception->getMessage())
-            );
+        if (is_int($code = $this->handleInitialization($input, $output))) {
+            return $code;
         }
 
-        $total = $this->multiRepositoryHandler->getRepositoriesCount();
         $i = 0;
 
         try {
             foreach ($this->multiRepositoryHandler->iterateHandle() as $repoOutput) {
                 $output->writeln(
                     sprintf(
-                        '<fg=green>%04d / %04d Repository %s fixed successfully</>',
+                        '<fg=green>%04d Repository %s fixed successfully</>',
                         ++$i,
-                        $total,
                         $repoOutput->getName()
                     )
                 );
@@ -85,9 +74,8 @@ class RepositoriesFixCommand extends Command
                 $exception,
                 $input->hasOption('debug'),
                 sprintf(
-                    '<error>%04d / %04d Repository failed to fix with message: %s</error>',
+                    '<error>%04d Repository failed to fix with message: %s</error>',
                     ++$i,
-                    $total,
                     $exception->getMessage()
                 ));
         }
@@ -95,19 +83,18 @@ class RepositoriesFixCommand extends Command
         return 0;
     }
 
-    private function handleException(
-        OutputInterface $output,
-        Throwable $exception,
-        bool $isDebug,
-        string $message
-    ): int
+    protected function initializeOptions(InputInterface $input): void
     {
-        $output->writeln($message);
-
-        if ($isDebug) {
-            throw $exception;
+        if ($input->getOption('repo') !== []) {
+            $this->multiRepositoryHandler->replaceRepositories($input->getOption('repo'));
         }
 
-        return $exception->getCode() ?? 1;
+        if ($input->getOption('fixer') !== []) {
+            $this->multiRepositoryHandler->replaceFixers($input->getOption('fixer'));
+        }
+
+        if ($input->getOption('label') !== []) {
+            $this->multiRepositoryHandler->setIntendedLabels($input->getOption('label'));
+        }
     }
 }

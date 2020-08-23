@@ -12,6 +12,6 @@ final class ShExecHelper
 
         exec($command, $output, $code);
 
-        return [$code, implode($output, PHP_EOL)];
+        return [$code, implode(PHP_EOL, $output)];
     }
 }
