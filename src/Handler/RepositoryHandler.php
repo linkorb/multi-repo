@@ -66,17 +66,18 @@ class RepositoryHandler implements RepositoryHandlerInterface
         return $output;
     }
 
-    public function refreshRepository(RepoInputDto $repoInputDto): void
+    public function setupRepository(RepoInputDto $repoInputDto, bool $pullRepo = true): void
     {
         $repoInputDto->repositoryPath = implode(
             DIRECTORY_SEPARATOR,
             [$this->repositoriesBasePath, $repoInputDto->getName()]
         );
 
-        $this->manager->refresh(
+        $this->manager->setup(
             $repoInputDto->getName(),
             $repoInputDto->getDsn(),
-            $this->repositoriesBasePath
+            $this->repositoriesBasePath,
+            $pullRepo
         );
     }
 

@@ -4,9 +4,7 @@ namespace Linkorb\MultiRepo\Handler;
 
 use Generator;
 use InvalidArgumentException;
-use Linkorb\MultiRepo\Dto\RepoInputDto;
-use Linkorb\MultiRepo\Dto\RepoOutputDto;
-use Linkorb\MultiRepo\Exception\RepositoryHasUncommittedChangesException;
+use Linkorb\MultiRepo\Action\CommandActionInterface;
 use Linkorb\MultiRepo\Services\ConfigResolver;
 
 class MultiRepositoryHandler
@@ -23,43 +21,10 @@ class MultiRepositoryHandler
         $this->configResolver = $configResolver;
     }
 
-    /**
-     * @return Generator|RepoOutputDto[]
-     */
-    public function iterateHandle(): Generator
+    public function iterateExecAction(CommandActionInterface $action): Generator
     {
-        foreach ($this->configResolver->iterateRepositories() as $repoName => $repoData) {
-            $repoInputDto = new RepoInputDto($repoName, $repoData['gitUrl'], $repoData);
-
-            $this->repositoryHandler->refreshRepository($repoInputDto);
-
-            $repoInputDto = $this->configResolver->loadMetadata($repoInputDto);
-
-            if (!$this->configResolver->isMatchingLabels($repoInputDto)) {
-                continue;
-            }
-
-            yield $this->repositoryHandler->handle($repoInputDto);
-        }
+        return $action->execute($this->configResolver, $this->repositoryHandler);
     }
-
-    public function iterateHasChanges(): Generator
-    {
-        foreach ($this->configResolver->iterateRepositories() as $repoName => $repoData) {
-            try {
-                $repoInputDto = $this->configResolver->loadMetadata(
-                    new RepoInputDto($repoName, $repoData['gitUrl'], $repoData)
-                );
-
-                $this->repositoryHandler->refreshRepository($repoInputDto);
-            } catch (RepositoryHasUncommittedChangesException $exception) {
-                if (isset($repoInputDto) && $this->configResolver->isMatchingLabels($repoInputDto)) {
-                    yield $repoName;
-                }
-            }
-        }
-    }
-
     /**
      * @param string[] $repositories
      */
@@ -71,9 +36,14 @@ class MultiRepositoryHandler
     /**
      * @param string[] $fixersList
      */
-    public function replaceFixers(array $fixersList): void
+    public function intersectFixers(array $fixersList): void
     {
-        $this->configResolver->replaceFixers($fixersList);
+        $this->configResolver->intersectFixers($fixersList);
+    }
+
+    public function replaceFixers(array $fixersData): void
+    {
+        $this->configResolver->replaceFixers($fixersData);
     }
 
     public function setIntendedLabels(array $labels): void

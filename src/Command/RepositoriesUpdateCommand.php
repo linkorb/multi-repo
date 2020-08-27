@@ -2,7 +2,7 @@
 
 namespace Linkorb\MultiRepo\Command;
 
-use Linkorb\MultiRepo\Action\FixCommandAction;
+use Linkorb\MultiRepo\Action\UpdateCommandAction;
 use Linkorb\MultiRepo\Handler\MultiRepositoryHandler;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -10,17 +10,17 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Throwable;
 
-final class RepositoriesFixCommand extends Command
+final class RepositoriesUpdateCommand extends Command
 {
     use HandleInitializationAwareTrait;
 
-    protected static $defaultName = 'linkorb:multi-repo:fix';
+    protected static $defaultName = 'linkorb:multi-repo:update';
 
     private MultiRepositoryHandler $multiRepositoryHandler;
 
-    private FixCommandAction $action;
+    private UpdateCommandAction $action;
 
-    public function __construct(MultiRepositoryHandler $multiRepositoryHandler, FixCommandAction $action)
+    public function __construct(MultiRepositoryHandler $multiRepositoryHandler, UpdateCommandAction $action)
     {
         $this->multiRepositoryHandler = $multiRepositoryHandler;
         $this->action = $action;
@@ -28,15 +28,9 @@ final class RepositoriesFixCommand extends Command
         parent::__construct();
     }
 
-    protected function configure(): void
+    protected function configure()
     {
         $this
-            ->addOption(
-                'fixer',
-                null,
-                InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
-                'Apply only specified fixer'
-            )
             ->addOption(
                 'repo',
                 null,
@@ -66,9 +60,9 @@ final class RepositoriesFixCommand extends Command
             foreach ($this->multiRepositoryHandler->iterateExecAction($this->action) as $repoOutput) {
                 $output->writeln(
                     sprintf(
-                        '<fg=green>%04d Repository %s fixed successfully</>',
+                        '<fg=green>%04d Repository %s updated</>',
                         ++$i,
-                        $repoOutput->getName()
+                        $repoOutput
                     )
                 );
             }
@@ -78,7 +72,7 @@ final class RepositoriesFixCommand extends Command
                 $exception,
                 $input->hasOption('debug'),
                 sprintf(
-                    '<error>%04d Repository failed to fix with message: %s</error>',
+                    '<error>%04d Repository failed to update with message: %s</error>',
                     ++$i,
                     $exception->getMessage()
                 ));
@@ -91,10 +85,6 @@ final class RepositoriesFixCommand extends Command
     {
         if ($input->getOption('repo') !== []) {
             $this->multiRepositoryHandler->replaceRepositories($input->getOption('repo'));
-        }
-
-        if ($input->getOption('fixer') !== []) {
-            $this->multiRepositoryHandler->intersectFixers($input->getOption('fixer'));
         }
 
         if ($input->getOption('label') !== []) {

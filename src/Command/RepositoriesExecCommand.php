@@ -3,18 +3,22 @@
 namespace Linkorb\MultiRepo\Command;
 
 use Linkorb\MultiRepo\Action\FixCommandAction;
+use Linkorb\MultiRepo\Dto\RepoOutputDto;
 use Linkorb\MultiRepo\Handler\MultiRepositoryHandler;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Throwable;
 
-final class RepositoriesFixCommand extends Command
+final class RepositoriesExecCommand extends Command
 {
     use HandleInitializationAwareTrait;
 
-    protected static $defaultName = 'linkorb:multi-repo:fix';
+    public const EXEC_COMMAND_KEY = 'executeCustom';
+
+    protected static $defaultName = 'linkorb:multi-repo:exec';
 
     private MultiRepositoryHandler $multiRepositoryHandler;
 
@@ -28,15 +32,10 @@ final class RepositoriesFixCommand extends Command
         parent::__construct();
     }
 
-    protected function configure(): void
+    protected function configure()
     {
         $this
-            ->addOption(
-                'fixer',
-                null,
-                InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
-                'Apply only specified fixer'
-            )
+            ->addArgument('custom-command', InputArgument::REQUIRED, 'Command to be executed')
             ->addOption(
                 'repo',
                 null,
@@ -61,14 +60,17 @@ final class RepositoriesFixCommand extends Command
         }
 
         $i = 0;
+        $command = $input->getArgument('custom-command');
 
         try {
+            /** @var RepoOutputDto $repoOutput */
             foreach ($this->multiRepositoryHandler->iterateExecAction($this->action) as $repoOutput) {
                 $output->writeln(
                     sprintf(
-                        '<fg=green>%04d Repository %s fixed successfully</>',
+                        '<fg=green>%04d Repository %s executed command `%s`</>',
                         ++$i,
-                        $repoOutput->getName()
+                        $repoOutput->getName(),
+                        $command
                     )
                 );
             }
@@ -78,7 +80,7 @@ final class RepositoriesFixCommand extends Command
                 $exception,
                 $input->hasOption('debug'),
                 sprintf(
-                    '<error>%04d Repository failed to fix with message: %s</error>',
+                    '<error>%04d Repository failed to execute command with message: %s</error>',
                     ++$i,
                     $exception->getMessage()
                 ));
@@ -93,12 +95,14 @@ final class RepositoriesFixCommand extends Command
             $this->multiRepositoryHandler->replaceRepositories($input->getOption('repo'));
         }
 
-        if ($input->getOption('fixer') !== []) {
-            $this->multiRepositoryHandler->intersectFixers($input->getOption('fixer'));
-        }
-
         if ($input->getOption('label') !== []) {
             $this->multiRepositoryHandler->setIntendedLabels($input->getOption('label'));
         }
+
+        $this->multiRepositoryHandler->replaceFixers([
+            static::EXEC_COMMAND_KEY => [
+                'command' => $input->getArgument('custom-command'),
+            ]
+        ]);
     }
 }

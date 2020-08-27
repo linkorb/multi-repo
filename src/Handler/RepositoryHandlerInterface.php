@@ -9,5 +9,5 @@ interface RepositoryHandlerInterface
 {
     public function handle(RepoInputDto $repoInputDto): RepoOutputDto;
 
-    public function refreshRepository(RepoInputDto $repoInputDto): void;
+    public function setupRepository(RepoInputDto $repoInputDto, bool $pullRepo = true): void;
 }

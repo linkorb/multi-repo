@@ -57,17 +57,30 @@ class ConfigResolver
     /**
      * @param string[] $fixersList
      */
-    public function replaceFixers(array $fixersList): void
+    public function intersectFixers(array $fixersList): void
     {
         $fixers = array_flip($fixersList);
 
         if ($this->defaults()['fixers'] ?? false) {
-            $this->defaults()['fixers'] = array_intersect_key($this->defaults()['fixers'], $fixers);
+            $this->config['defaults']['fixers'] = array_intersect_key($this->defaults()['fixers'], $fixers);
         }
 
         foreach ($this->config['configs'] as $repoName => $repoData) {
             if ($repoData['fixers'] ?? false) {
                 $repoData['fixers'] = array_intersect_key($repoData['fixers'], $fixers);
+            }
+        }
+    }
+
+    public function replaceFixers(array $fixerData): void
+    {
+        if ($this->defaults()['fixers'] ?? false) {
+            $this->config['defaults']['fixers'] = $fixerData;
+        }
+
+        foreach ($this->config['configs'] as $repoName => $repoData) {
+            if ($repoData['fixers'] ?? false) {
+                $repoData['fixers'] = $fixerData;
             }
         }
     }

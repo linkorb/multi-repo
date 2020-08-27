@@ -2,13 +2,14 @@
 
 namespace Linkorb\MultiRepo\Command;
 
+use Linkorb\MultiRepo\Action\HasChangesCommandAction;
 use Linkorb\MultiRepo\Handler\MultiRepositoryHandler;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class ListUncommittedRepositoriesCommand extends Command
+final class ListUncommittedRepositoriesCommand extends Command
 {
     use HandleInitializationAwareTrait;
 
@@ -16,9 +17,12 @@ class ListUncommittedRepositoriesCommand extends Command
 
     private MultiRepositoryHandler $multiRepositoryHandler;
 
-    public function __construct(MultiRepositoryHandler $multiRepositoryHandler)
+    private HasChangesCommandAction $action;
+
+    public function __construct(MultiRepositoryHandler $multiRepositoryHandler, HasChangesCommandAction $action)
     {
         $this->multiRepositoryHandler = $multiRepositoryHandler;
+        $this->action = $action;
 
         parent::__construct();
     }
@@ -43,7 +47,7 @@ class ListUncommittedRepositoriesCommand extends Command
             return $code;
         }
 
-        foreach ($this->multiRepositoryHandler->iterateHasChanges() as $repoName) {
+        foreach ($this->multiRepositoryHandler->iterateExecAction($this->action) as $repoName) {
             $output->writeln(sprintf('<fg=green>Repository %s has uncommitted changes</>', $repoName));
         }
 

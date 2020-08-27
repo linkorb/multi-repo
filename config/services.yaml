@@ -99,6 +99,14 @@ services:
                             - '@Linkorb\MultiRepo\Services\Helper\TemplateLocationHelper'
                             - '@Linkorb\MultiRepo\Services\Helper\ShExecHelper'
                             - '@Linkorb\MultiRepo\Services\Io\IoInterface'
+            -
+                - addToPool
+                -
+                    - !php/const Linkorb\MultiRepo\Command\RepositoriesExecCommand::EXEC_COMMAND_KEY
+                    - !service
+                        factory: ['Linkorb\MultiRepo\Factory\MiddlewareFactory', 'createCustomCommandExecutor']
+                        arguments:
+                            - '@Linkorb\MultiRepo\Services\Helper\ShExecHelper'
 
     Linkorb\MultiRepo\Handler\RepositoryHandler:
         arguments:
