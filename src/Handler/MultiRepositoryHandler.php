@@ -4,110 +4,61 @@ namespace Linkorb\MultiRepo\Handler;
 
 use Generator;
 use InvalidArgumentException;
-use Linkorb\MultiRepo\Dto\RepoInputDto;
-use Linkorb\MultiRepo\Dto\RepoOutputDto;
-use Linkorb\MultiRepo\Exception\RepositoryHasUncommittedChangesException;
-use Linkorb\MultiRepo\Services\Helper\TemplateLocationHelper;
+use Linkorb\MultiRepo\Action\CommandActionInterface;
+use Linkorb\MultiRepo\Services\ConfigResolver;
 
 class MultiRepositoryHandler
 {
     private RepositoryHandlerInterface $repositoryHandler;
 
-    private TemplateLocationHelper $templateLocationHelper;
-
-    private array $config;
+    private ConfigResolver $configResolver;
 
     public function __construct(
         RepositoryHandlerInterface $repositoryHandler,
-        TemplateLocationHelper $templateLocationHelper,
-        array $config
+        ConfigResolver $configResolver
     ) {
         $this->repositoryHandler = $repositoryHandler;
-        $this->templateLocationHelper = $templateLocationHelper;
-        $this->config = $config;
+        $this->configResolver = $configResolver;
     }
 
-    /**
-     * @return Generator|RepoOutputDto[]
-     */
-    public function iterateHandle(): Generator
+    public function iterateExecAction(CommandActionInterface $action): Generator
     {
-        foreach ($this->config['configs'] as $repoName => $repoData) {
-            yield $this->repositoryHandler->handle(
-                new RepoInputDto(
-                    $repoName,
-                    $repoData['gitUrl'],
-                    array_replace_recursive($this->defaults() ?? [], $this->config['configs'][$repoName])
-                )
-            );
-        }
+        return $action->execute($this->configResolver, $this->repositoryHandler);
     }
-
-    public function iterateHasChanges(): Generator
-    {
-        foreach ($this->config['configs'] as $repoName => $repoData) {
-            try {
-                $this->repositoryHandler->refreshRepository(
-                    new RepoInputDto($repoName, $repoData['gitUrl'], [])
-                );
-            } catch (RepositoryHasUncommittedChangesException $exception) {
-                yield $repoName;
-            }
-        }
-    }
-
-    public function getRepositoriesCount(): int
-    {
-        return count($this->config['configs']);
-    }
-
     /**
      * @param string[] $repositories
      */
     public function replaceRepositories(array $repositories): void
     {
-        $currentRepoList = $this->config['configs'];
-        $this->config['configs'] = [];
-
-        foreach ($repositories as $repoName) {
-            if (!array_key_exists($repoName, $currentRepoList)) {
-                throw new InvalidArgumentException(sprintf('Passed repository `%s` doesn\'t exists in config', $repoName));
-            }
-
-            $this->config['configs'][$repoName] = $currentRepoList[$repoName];
-        }
+        $this->configResolver->replaceRepositories($repositories);
     }
 
     /**
      * @param string[] $fixersList
      */
-    public function replaceFixers(array $fixersList): void
+    public function intersectFixers(array $fixersList): void
     {
-        $fixers = array_flip($fixersList);
-
-        if ($this->defaults()['fixers'] ?? false) {
-            $this->defaults()['fixers'] = array_intersect_key($this->defaults()['fixers'], $fixers);
-        }
-
-        foreach ($this->config['configs'] as $repoName => $repoData) {
-            if ($repoData['fixers'] ?? false) {
-                $repoData['fixers'] = array_intersect_key($repoData['fixers'], $fixers);
-            }
-        }
+        $this->configResolver->intersectFixers($fixersList);
     }
 
-    private function defaults(): array
+    public function replaceFixers(array $fixersData): void
     {
-        if (is_array($this->config['defaults'])) {
-            return $this->config['defaults'];
+        $this->configResolver->replaceFixers($fixersData);
+    }
+
+    public function setIntendedLabels(array $labels): void
+    {
+        $parsedLabels = [];
+        foreach ($labels as $combinedLabelRow) {
+            if (!str_contains($combinedLabelRow, '=')) {
+                throw new InvalidArgumentException('Label should contain name and value separated by `=`');
+            }
+
+            [$key, $value] = explode('=', $combinedLabelRow, 2);
+
+            $parsedLabels[$key] = $value;
         }
 
-        if (!isset($this->config['defaults']) || empty($this->config['defaults'])) {
-            return [];
-        }
-
-        $this->config['defaults'] = $this->templateLocationHelper->getYamlTemplate($this->config['defaults']);
-
-        return $this->config['defaults'];
+        $this->configResolver->setIntendedLabels($parsedLabels);
     }
 }

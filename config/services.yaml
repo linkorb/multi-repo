@@ -99,14 +99,24 @@ services:
                             - '@Linkorb\MultiRepo\Services\Helper\TemplateLocationHelper'
                             - '@Linkorb\MultiRepo\Services\Helper\ShExecHelper'
                             - '@Linkorb\MultiRepo\Services\Io\IoInterface'
+            -
+                - addToPool
+                -
+                    - !php/const Linkorb\MultiRepo\Command\RepositoriesExecCommand::EXEC_COMMAND_KEY
+                    - !service
+                        factory: ['Linkorb\MultiRepo\Factory\MiddlewareFactory', 'createCustomCommandExecutor']
+                        arguments:
+                            - '@Linkorb\MultiRepo\Services\Helper\ShExecHelper'
 
     Linkorb\MultiRepo\Handler\RepositoryHandler:
         arguments:
             $repositoriesBasePath: '%repositoriesBasePath%'
 
-    Linkorb\MultiRepo\Handler\MultiRepositoryHandler:
+    Linkorb\MultiRepo\Services\ConfigResolver:
         arguments:
             $config: '%repos%'
+            $repositoriesBasePath: '%repositoriesBasePath%'
+            $repositoriesConfigPath: '%repositoriesConfigPath%'
 
     Linkorb\MultiRepo\Services\Helper\DockerfileInitHelper:
         arguments:
@@ -121,20 +131,9 @@ services:
         arguments:
             $multiRepositoryHandler: '@multi_repo.multi_handlers.config_interceptor'
 
-    Linkorb\MultiRepo\Handler\RepositoryHandlerProxy:
-        arguments:
-            $handler: '@Linkorb\MultiRepo\Handler\RepositoryHandler'
-            $repositoriesBasePath: '%repositoriesBasePath%'
-            $repositoriesConfigPath: '%repositoriesConfigPath%'
-
-    multi_repo.handlers.config_interceptor:
-        parent: Linkorb\MultiRepo\Handler\RepositoryHandlerProxy
-        arguments:
-            $handler: '@Linkorb\MultiRepo\Handler\ConfigInterceptorHandler'
-
     multi_repo.multi_handlers.config_interceptor:
         parent: Linkorb\MultiRepo\Handler\MultiRepositoryHandler
         arguments:
-            $repositoryHandler: '@multi_repo.handlers.config_interceptor'
+            $repositoryHandler: '@Linkorb\MultiRepo\Handler\ConfigInterceptorHandler'
 
-    Linkorb\MultiRepo\Handler\RepositoryHandlerInterface: '@Linkorb\MultiRepo\Handler\RepositoryHandlerProxy'
+    Linkorb\MultiRepo\Handler\RepositoryHandlerInterface: '@Linkorb\MultiRepo\Handler\RepositoryHandler'

@@ -45,3 +45,5 @@ parameters:
           conventionalCommit:
             versionrc: https://raw.github.com/linkorb/templates/conventionalCommit/.versionrc.twig
             config: https://raw.github.com/linkorb/templates/conventionalCommit/config.js.twig
+          executeCustom:
+            command: "composer install"

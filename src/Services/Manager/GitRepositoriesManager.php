@@ -15,7 +15,7 @@ class GitRepositoriesManager
      */
     private array $repositories = [];
 
-    public function refresh(string $repositoryName, string $repositoryDsn, string $path): void
+    public function setup(string $repositoryName, string $repositoryDsn, string $path, bool $pullRepo = true): void
     {
         $repo = $this->instantiateRepository($repositoryName, $repositoryDsn, $path);
 
@@ -28,7 +28,9 @@ class GitRepositoriesManager
             );
         }
 
-        $repo->pull();
+        if ($pullRepo) {
+            $repo->pull();
+        }
     }
 
     private function instantiateRepository(string $repositoryName, string $repositoryDsn, string $path): IGit

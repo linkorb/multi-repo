@@ -7,6 +7,7 @@ use Linkorb\MultiRepo\Middleware\ComposerJsonDependencyBlacklistMiddleware;
 use Linkorb\MultiRepo\Middleware\ComposerJsonVersionConstraintMiddleware;
 use Linkorb\MultiRepo\Middleware\ConventionalCommitMiddleware;
 use Linkorb\MultiRepo\Middleware\EditorConfigMiddleware;
+use Linkorb\MultiRepo\Middleware\ExecuteCustomCommandMiddleware;
 use Linkorb\MultiRepo\Middleware\GithubWorkflowMiddleware;
 use Linkorb\MultiRepo\Middleware\JsonMiddleware;
 use Linkorb\MultiRepo\Middleware\QaCheckMiddleware;
@@ -92,6 +93,13 @@ class MiddlewareFactory
     {
         return function () use ($helper, $executor, $io): ConventionalCommitMiddleware {
             return new ConventionalCommitMiddleware($helper, $executor, $io);
+        };
+    }
+
+    public static function createCustomCommandExecutor(ShExecHelper $executor): callable
+    {
+        return function () use ($executor): ExecuteCustomCommandMiddleware {
+            return new ExecuteCustomCommandMiddleware($executor);
         };
     }
 }

@@ -29,7 +29,7 @@ class ConfigInterceptorHandler implements RepositoryHandlerInterface
         return $output;
     }
 
-    public function refreshRepository(RepoInputDto $repoInputDto): void
+    public function setupRepository(RepoInputDto $repoInputDto, bool $pullRepo = true): void
     {
         $repoInputDto->repositoryPath = $repoInputDto->getName();
     }
