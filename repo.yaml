@@ -2,9 +2,11 @@ codeowners:
 - owners:
   - '@joostfaassen'
   pattern: '*'
-description: ''
+description: 'Command line tool which allows you to manage multiple git repositories at a time'
 license: proprietary
 name: multi-repo
-readme:
-  enable_generation: false
 type: other
+visibility: public
+github:
+  features:
+    issues: true
