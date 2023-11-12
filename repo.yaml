@@ -1,0 +1,10 @@
+codeowners:
+- owners:
+  - '@joostfaassen'
+  pattern: '*'
+description: ''
+license: proprietary
+name: multi-repo
+readme:
+  enable_generation: false
+type: other
