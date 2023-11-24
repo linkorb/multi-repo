@@ -14,7 +14,6 @@ repository:
   homepage: https://engineering.linkorb.com
   
   
-    
   # Either `true` to make the repository private, or `false` to make it public.
   private: false
 
@@ -27,7 +26,7 @@ repository:
   has_wiki: false
 
   # Either `true` to enable downloads for this repository, `false` to disable them.
-  has_downloads: false
+  has_downloads: true
 
   # Updates the default branch for this repository.
   default_branch: master
@@ -38,11 +37,11 @@ repository:
 
   # Either `true` to allow merging pull requests with a merge commit, or `false`
   # to prevent merging pull requests with merge commits.
-  allow_merge_commit: false
+  allow_merge_commit: true
 
   # Either `true` to allow rebase-merging pull requests, or `false` to prevent
   # rebase-merging.
-  allow_rebase_merge: false
+  allow_rebase_merge: true
 
   # Either `true` to enable automatic deletion of branches on merge, or `false` to disable
   delete_branch_on_merge: true
