@@ -1,0 +1,46 @@
+name: repo-ansible
+
+on:
+  pull_request:
+    paths:
+      - 'repo.yaml'
+  push:
+    paths:
+      - 'repo.yaml'
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: current
+
+      - uses: actions/checkout@v4
+        with:
+          repository: linkorb/repo-ansible
+          path: repo-ansible
+
+      # XXX ansible installed within GitHub Runner via pipx, which doesn't support direct installation from a file
+      # like pip does. See https://github.com/pypa/pipx/issues/934
+      - name: install repo-ansible dependencies
+        working-directory: repo-ansible
+        run: cat requirements.txt | xargs pipx inject ansible-core
+
+      - run: ansible-playbook ../repo-ansible/playbook-cwd.yaml
+        working-directory: current
+        env:
+          ANSIBLE_DISPLAY_OK_HOSTS: 0
+          ANSIBLE_DISPLAY_SKIPPED_HOSTS: 0
+
+      - name: commit changes
+        working-directory: current
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m "chore: repo-ansible run"
+          git push
