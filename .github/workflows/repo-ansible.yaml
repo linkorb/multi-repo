@@ -1,0 +1,90 @@
+name: repo-ansible
+
+on:
+  pull_request_target:
+    paths:
+      - 'repo.yaml'
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - 'repo.yaml'
+
+permissions:
+  contents: write # allow git commits & push
+  pull-requests: write # allow comments on PR
+
+env:
+  # XXX alternative to missing ternary syntax
+  IS_PULL_REQUEST: ${{ github.event_name == 'pull_request_target' && '1' || '0' }}
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: current
+          ref: ${{ github.event_name == 'pull_request_target' && github.head_ref || '' }}
+
+      - uses: actions/checkout@v4
+        with:
+          repository: linkorb/repo-ansible
+          path: repo-ansible
+
+
+      # XXX ansible installed within GitHub Runner via pipx, which doesn't support direct installation from a file
+      # like pip does. See https://github.com/pypa/pipx/issues/934
+      - name: install repo-ansible dependencies
+        working-directory: repo-ansible
+        run: cat requirements.txt | xargs pipx inject ansible-core
+
+
+      - name: run ansible playbook
+        working-directory: current
+        env:
+          ANSIBLE_DISPLAY_OK_HOSTS: 0
+          ANSIBLE_DISPLAY_SKIPPED_HOSTS: 0
+        run: |
+          ansible-playbook ../repo-ansible/playbook-cwd.yaml | tee /tmp/repo_ansible_output
+          export OUTPUT=$(cat /tmp/repo_ansible_output)
+          {
+            echo 'REPO_ANSIBLE_OUTPUT<<EOF'
+            echo "$OUTPUT"
+            echo EOF
+          } >> "$GITHUB_ENV"
+
+          if ! echo "$OUTPUT" | grep "changed=0"; then
+            echo "REPOSITORY_CHANGED=1" >> "$GITHUB_ENV"
+          fi
+
+
+      - if: ${{ env.IS_PULL_REQUEST == '0' }}
+        name: commit changes
+        working-directory: current
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m "chore: repo-ansible run"
+          git push
+
+
+      - if: ${{ env.IS_PULL_REQUEST == '1' && env.REPOSITORY_CHANGED == '1' }}
+        name: comment with changes
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const changes = process.env.REPO_ANSIBLE_OUTPUT
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `Following repo-ansible changes will be applied when merged to main/master branch
+
+              \`\`\`shell
+              ${changes}
+              \`\`\`
+            `
+            })
