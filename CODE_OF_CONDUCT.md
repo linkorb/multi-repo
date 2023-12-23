@@ -1,5 +1,5 @@
 ## TL;DR
-# Managed by https://github.com/linkorb/repo-ansible. Manual changes will be overwritten.
+<!-- Managed by https://github.com/linkorb/repo-ansible. Manual changes will be overwritten. -->
 
 Be nice. Provide and accept constructive feedback. Avoid spamming, abusive, trolling, and otherwise unacceptable behavior. Repeat violations may result in a permanent ban.
 
