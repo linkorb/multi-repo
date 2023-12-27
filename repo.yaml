@@ -8,5 +8,6 @@ name: multi-repo
 type: other
 visibility: public
 github:
+  default_branch: master
   features:
     issues: true
