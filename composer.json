@@ -5,7 +5,7 @@
   "description": "CLI tool for checking and fixing abstract git repository by given config",
   "require": {
     "php": "^7.4",
-    "czproject/git-php": "^3.17",
+    "czproject/git-php": "^4.0",
     "symfony/console": "5.1.*",
     "symfony/dotenv": "5.1.*",
     "symfony/flex": "^1.6.2",

@@ -4,27 +4,27 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "da2be679e4e18310b85c4f0e954376c5",
+    "content-hash": "bdbecfb62a2120a2dc34f9864dfb8c00",
     "packages": [
         {
             "name": "czproject/git-php",
-            "version": "v3.17.1",
+            "version": "v4.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/czproject/git-php.git",
-                "reference": "b5e709f0e9c4e4e39b49d4e322f7fa73c1bb21dc"
+                "reference": "5e82d5479da5f16d37a915de4ec55e1ac78de733"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/czproject/git-php/zipball/b5e709f0e9c4e4e39b49d4e322f7fa73c1bb21dc",
-                "reference": "b5e709f0e9c4e4e39b49d4e322f7fa73c1bb21dc",
+                "url": "https://api.github.com/repos/czproject/git-php/zipball/5e82d5479da5f16d37a915de4ec55e1ac78de733",
+                "reference": "5e82d5479da5f16d37a915de4ec55e1ac78de733",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.4.0"
+                "php": ">=5.6.0"
             },
             "require-dev": {
-                "nette/tester": "^1.1"
+                "nette/tester": "^2.0"
             },
             "type": "library",
             "autoload": {
@@ -46,7 +46,13 @@
             "keywords": [
                 "git"
             ],
-            "time": "2019-12-03T02:28:45+00:00"
+            "funding": [
+                {
+                    "url": "https://www.paypal.com/donate?hosted_button_id=EPSKR7MGVV7KC",
+                    "type": "custom"
+                }
+            ],
+            "time": "2022-04-21T16:50:57+00:00"
         },
         {
             "name": "psr/cache",
