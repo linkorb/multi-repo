@@ -1,4 +1,4 @@
-name: repo-ansible
+name: Auto-run repo-ansible
 
 on:
   workflow_dispatch:
@@ -27,35 +27,16 @@ jobs:
     steps:
       - if: ${{ env.IS_PULL_REQUEST == '0' }}
         uses: actions/checkout@v4
-        with:
-          path: current
 
       - if: ${{ env.IS_PULL_REQUEST == '1' }}
         uses: actions/checkout@v4
         with:
-          path: current
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
-      - uses: actions/checkout@v4
-        with:
-          repository: linkorb/repo-ansible
-          path: repo-ansible
-
-
-      # XXX ansible installed within GitHub Runner via pipx, which doesn't support direct installation from a file
-      # like pip does. See https://github.com/pypa/pipx/issues/934
-      - name: install repo-ansible dependencies
-        working-directory: repo-ansible
-        run: cat requirements.txt | xargs pipx inject ansible-core
-
-
-      - name: run ansible playbook
-        working-directory: current
-        env:
-          ANSIBLE_DISPLAY_OK_HOSTS: 0
-          ANSIBLE_DISPLAY_SKIPPED_HOSTS: 0
+      - name: repo-ansible
         run: |
-          ansible-playbook ../repo-ansible/playbook-cwd.yaml | tee /tmp/repo_ansible_output
+          docker pull ghcr.io/linkorb/repo-ansible:latest >/dev/null
+          docker run --rm -v "$PWD":/app ghcr.io/linkorb/repo-ansible:latest | tee /tmp/repo_ansible_output
           export OUTPUT=$(cat /tmp/repo_ansible_output)
           {
             echo 'REPO_ANSIBLE_OUTPUT<<EOF'
@@ -70,10 +51,9 @@ jobs:
 
       - if: ${{ env.IS_PULL_REQUEST == '0' }}
         name: commit changes
-        working-directory: current
         run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .
           if git commit -m "chore: repo-ansible run"; then
             git push

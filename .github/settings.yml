@@ -10,10 +10,11 @@ repository:
   # A short description of the repository that will show up on GitHub
   description: "Command line tool which allows you to manage multiple git repositories at a time"
 
-    # A URL with more information about the repository
+
+  # A URL with more information about the repository
   homepage: https://engineering.linkorb.com
-  
-  
+
+
   # Either `true` to make the repository private, or `false` to make it public.
   private: false
 
@@ -71,4 +72,3 @@ labels:
 
 
 # Milestones: define milestones for Issues and Pull Requests
-

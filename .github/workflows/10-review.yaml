@@ -1,0 +1,53 @@
+# Managed by https://github.com/linkorb/repo-ansible. Manual changes will be overwritten.
+name: Review
+
+on:
+  pull_request_target:
+    types: [opened, edited, reopened, synchronize]
+  workflow_call:
+
+jobs:
+  commit-conventions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # interesting alternative: https://github.com/cocogitto/cocogitto
+      - name: Conventional commit checker
+        uses: webiny/action-conventional-commits@v1.3.0
+        # XXX: normal action versioning syntax (`@v1`) doesn't work with this action,
+        # possibly because not published on the GitHub marketplace
+
+      - name: Check Card# reference
+        uses: gsactions/commit-message-checker@v2
+        with:
+          # Matches lines that end in a card number:                  #1234
+          # Matches lines that end in a card number and PR reference: #1234 (#20)
+          pattern: '#\d{4}(\s+\(#\d+\))?'
+          flags: 'gm'
+          error: 'Your commit message has to end with a card number like "#1234".'
+          excludeDescription: 'true' # optional: this excludes the description body of a pull request
+          excludeTitle: 'true' # optional: this excludes the title of a pull request
+          checkAllCommitMessages: 'true' # optional: this checks all commits associated with a pull request
+          accessToken: ${{ secrets.GITHUB_TOKEN }} # github access token is only required if checkAllCommitMessages is true
+
+      - name: Check Line Length
+        uses: gsactions/commit-message-checker@v2
+        with:
+          pattern: '^.{0,50}$'
+          error: 'The maximum line length of 50 characters is exceeded.'
+          excludeDescription: 'true' # optional: this excludes the description body of a pull request
+          excludeTitle: 'true' # optional: this excludes the title of a pull request
+          checkAllCommitMessages: 'true' # optional: this checks all commits associated with a pull request
+          accessToken: ${{ secrets.GITHUB_TOKEN }} # github access token is only required if checkAllCommitMessages is true
+
+      - name: Check Body Length
+        uses: gsactions/commit-message-checker@v2
+        with:
+          pattern: '^.{0,72}$'
+          error: 'The maximum line length of 72 characters is exceeded in the body.'
+          excludeDescription: 'false' # optional: this excludes the description body of a pull request
+          excludeTitle: 'true' # optional: this excludes the title of a pull request
+          checkAllCommitMessages: 'true' # optional: this checks all commits associated with a pull request
+          accessToken: ${{ secrets.GITHUB_TOKEN }} # github access token is only required if checkAllCommitMessages is true
